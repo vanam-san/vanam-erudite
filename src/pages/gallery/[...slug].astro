@@ -1,0 +1,51 @@
+---
+import Breadcrumbs from '@/components/breadcrumbs.astro'
+import GalleryGrid from '@/components/gallery-grid.astro'
+import PageHead from '@/components/page-head.astro'
+import SectionHeading from '@/components/section-heading.astro'
+import Layout from '@/layouts/layout.astro'
+import { getAllGalleries } from '@/lib/data-utils'
+import { formatDate } from '@/lib/utils'
+import { render } from 'astro:content'
+
+export async function getStaticPaths() {
+  const galleries = await getAllGalleries()
+  return galleries.map((gallery) => ({
+    params: { slug: gallery.id },
+    props: gallery,
+  }))
+}
+
+const gallery = Astro.props
+const { Content } = await render(gallery)
+---
+
+<Layout class="max-w-3xl">
+  <PageHead
+    slot="head"
+    title={gallery.data.title}
+    description={gallery.data.description}
+  />
+  <Breadcrumbs
+    items={[
+      { href: '/gallery', label: 'Gallery', icon: 'lucide:image' },
+      { label: gallery.data.title, icon: 'lucide:image-plus' },
+    ]}
+  />
+
+  <section class="flex flex-col gap-y-6">
+    <SectionHeading
+      title={gallery.data.title}
+      description={gallery.data.description}
+    />
+    <p class="text-muted-foreground/70 text-xs">
+      {formatDate(gallery.data.date)}
+    </p>
+  </section>
+
+  <GalleryGrid photos={gallery.data.photos} title={gallery.data.title} />
+
+  <article class="prose max-w-none">
+    <Content />
+  </article>
+</Layout>

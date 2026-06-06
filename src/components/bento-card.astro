@@ -1,0 +1,48 @@
+---
+/**
+ * BentoCard.astro
+ * ───────────────
+ * Reusable wrapper component for the bento grid layout.
+ * Renders as <a> if href is provided (clickable), otherwise as <div>.
+ *
+ * Props:
+ *   - class: Tailwind classes for sizing (col-span, row-span)
+ *   - href: Link URL — makes the entire card clickable
+ *   - title: Accessible title attribute for the card
+ *
+ * Usage:
+ *   <BentoCard class="col-span-2" href="/blog/my-post">
+ *     <h3>Title</h3>
+ *     <p>Content</p>
+ *   </BentoCard>
+ *
+ *   <BentoCard class="col-span-1">
+ *     <span>Non-clickable content</span>
+ *   </BentoCard>
+ */
+import { cn } from '@/lib/utils'
+
+interface Props {
+  class?: string
+  href?: string
+  title?: string
+}
+
+const { class: className, href, title } = Astro.props
+
+// Renders as <a> for clickable cards, <div> for decorative cards
+const Tag = href ? 'a' : 'div'
+---
+
+<Tag
+  href={href}
+  title={title}
+  class={cn(
+    'group relative flex flex-col overflow-hidden rounded-2xl border border-border/50 bg-muted/20 p-5 transition-all duration-300',
+    href &&
+      'hover:border-2 hover:border-accent hover:bg-muted/50 hover:shadow-lg hover:shadow-accent/10 hover:scale-[1.02] dark:hover:shadow-accent/5',
+    className,
+  )}
+>
+  <slot />
+</Tag>

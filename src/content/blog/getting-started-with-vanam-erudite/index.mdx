@@ -1,0 +1,86 @@
+---
+title: 'Getting Started with Vanam-Erudite'
+description: 'A complete guide to setting up, customizing, and making the Vanam-Erudite template your own — from social links to blog posts to project showcases.'
+date: 2026-06-03
+tags: ['guide', 'setup', 'getting-started']
+authors: ['vanam', 'opencode']
+---
+
+import Callout from '@/components/callout.astro'
+
+Welcome to Vanam-Erudite! This guide walks you through everything you need to know to set up your site, customize it to match your brand, and start creating content.
+
+## What is Vanam-Erudite?
+
+Vanam-Erudite is a forked and modified version of [Astro Erudite](https://github.com/jktrn/astro-erudite), built with **Astro 6**, **Tailwind CSS v4**, **shadcn/ui**, and **MDX**. It comes with a bento-grid homepage, blog with pagination and tags, photo galleries, project showcases, and dark mode — all ready out of the box.
+
+## Initial Setup
+
+### 1. Configure Your Site
+
+Edit `src/consts.ts` to customize your site information:
+
+```typescript
+export const SITE: Site = {
+  title: 'Your Blog Name',
+  description: 'Your blog description',
+  href: 'https://yourdomain.com',
+  author: 'your-author-id',
+  heroBio: 'A short bio that appears on the homepage with a typing animation.',
+  locale: 'en-US',
+  featuredPostCount: 2,
+  postsPerPage: 6,
+}
+```
+
+<Callout variant="note" title="Site URL">
+The `href` field is used for SEO meta tags and the sitemap. Make sure it matches your deployed URL.
+</Callout>
+
+### 2. Update Navigation
+
+Customize your navigation links in `src/consts.ts`:
+
+```typescript
+export const NAV_LINKS: SocialLink[] = [
+  { href: '/about', label: 'about' },
+  { href: '/blog', label: 'blog' },
+  { href: '/projects', label: 'projects' },
+]
+```
+
+### 3. Add Your Social Links
+
+Update your social media links. Each link needs a `href` and a `label` — the label must match a key in `ICON_MAP` to display the correct icon:
+
+```typescript
+export const SOCIAL_LINKS: SocialLink[] = [
+  { href: 'https://github.com/username', label: 'GitHub' },
+  { href: 'https://twitter.com/username', label: 'Twitter' },
+  { href: 'mailto:you@example.com', label: 'Email' },
+  { href: '/rss.xml', label: 'RSS' },
+]
+```
+
+<Callout variant="tip" title="Available icons">
+Supported labels: `Website`, `GitHub`, `LinkedIn`, `Twitter`, `Instagram`, `Mastodon`, `Bluesky`, `Email`, `RSS`. You can add more by extending `ICON_MAP` in `src/consts.ts`.
+</Callout>
+
+## Subposts
+
+This guide is split into focused subposts for each topic:
+
+1. **Customizing Social Links and Adding Authors** — Set up your social presence and author profiles
+2. **Creating a New Blog Post** — Write and publish content with MDX
+3. **Adding a New Project** — Showcase your work on the projects page
+
+## Quick Start Checklist
+
+- [ ] Update `SITE` in `src/consts.ts`
+- [ ] Set your navigation links in `NAV_LINKS`
+- [ ] Add your social links in `SOCIAL_LINKS`
+- [ ] Create your author profile in `src/content/authors/`
+- [ ] Write your first blog post
+- [ ] Add your first project
+- [ ] Deploy to Vercel, Netlify, or your preferred host
+

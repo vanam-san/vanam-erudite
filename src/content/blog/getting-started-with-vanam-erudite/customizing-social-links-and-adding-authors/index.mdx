@@ -1,0 +1,115 @@
+---
+title: 'Customizing Social Links and Adding Authors'
+description: 'How to set up your social media links, configure the icon map, and create author profiles for your blog.'
+date: 2026-06-03
+order: 1
+tags: ['guide', 'setup', 'authors']
+authors: ['vanam']
+---
+
+import Callout from '@/components/callout.astro'
+
+This subpost covers how to personalize your social links and set up author profiles so posts show the right byline and avatar.
+
+## Updating Social Links
+
+All social links are defined in `src/consts.ts`. Each entry has a `href` (the URL) and a `label` (which determines the icon shown):
+
+```typescript
+export const SOCIAL_LINKS: SocialLink[] = [
+  { href: 'https://github.com/your-username', label: 'GitHub' },
+  { href: 'https://linkedin.com/in/your-username', label: 'LinkedIn' },
+  { href: 'https://twitter.com/your-handle', label: 'Twitter' },
+  { href: 'mailto:you@example.com', label: 'Email' },
+  { href: '/rss.xml', label: 'RSS' },
+]
+```
+
+### Supported Icons
+
+The `ICON_MAP` in `src/consts.ts` maps label names to [astro-icon](https://www.astroicon.dev/) icon identifiers:
+
+```typescript
+export const ICON_MAP: IconMap = {
+  Website: 'simple-icons:html5',
+  GitHub: 'simple-icons:github',
+  LinkedIn: 'simple-icons:linkedin',
+  Twitter: 'simple-icons:twitter',
+  Instagram: 'simple-icons:instagram',
+  Mastodon: 'simple-icons:mastodon',
+  Bluesky: 'simple-icons:bluesky',
+  Email: 'simple-icons:maildotru',
+  RSS: 'simple-icons:rss',
+}
+```
+
+<Callout variant="note" title="Adding new icons">
+To add a new social platform, add an entry to both `SOCIAL_LINKS` and `ICON_MAP`. Browse available icons at [icones.js.org](https://icones.js.org/).
+</Callout>
+
+## Creating Author Profiles
+
+Author profiles live in `src/content/authors/`. Each author is a Markdown file named after their ID (e.g., `vanam.md` → author ID `vanam`).
+
+### Author File Structure
+
+Create a new file at `src/content/authors/your-id.md`:
+
+```markdown
+---
+name: 'Your Name'
+pronouns: 'they/them'
+avatar: '/static/profile.png'
+bio: 'Software developer and open source enthusiast.'
+website: 'https://your-site.com'
+github: 'https://github.com/your-username'
+twitter: 'https://twitter.com/your-handle'
+linkedin: 'https://linkedin.com/in/your-username'
+mail: 'you@example.com'
+---
+```
+
+### Available Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Display name shown on the site |
+| `avatar` | Yes | Profile image — a URL or path starting with `/` |
+| `pronouns` | No | E.g., `he/him`, `they/them` |
+| `bio` | No | Short bio text |
+| `website` | No | Personal website URL |
+| `github` | No | GitHub profile URL |
+| `twitter` | No | Twitter/X profile URL |
+| `linkedin` | No | LinkedIn profile URL |
+| `mail` | No | Email address |
+| `discord` | No | Discord profile URL |
+| `bluesky` | No | Bluesky profile URL |
+| `mastodon` | No | Mastodon profile URL |
+
+<Callout variant="tip" title="Avatar images">
+Place your avatar image in `public/static/` and reference it as `/static/your-image.png`. The template will handle optimization automatically.
+</Callout>
+
+## Using Authors in Blog Posts
+
+Reference authors by their ID in your blog post frontmatter:
+
+```yaml
+---
+title: 'My Blog Post'
+authors: ['vanam']
+---
+```
+
+For multiple authors:
+
+```yaml
+---
+title: 'Collaborative Post'
+authors: ['vanam', 'other-author']
+---
+```
+
+<Callout variant="warning" title="Author ID must match filename">
+The author ID in the `authors` array must exactly match the filename (without `.md`) in `src/content/authors/`. If the file is `vanam.md`, the ID is `vanam`.
+</Callout>

@@ -1,0 +1,113 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme inline {
+  --font-sans:
+    Geist, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-mono:
+    Geist Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+}
+
+@font-face {
+  font-family: 'Geist';
+  src: url('/fonts/GeistVF.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/GeistMonoVF.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --background: oklch(0.94 0.03 255);
+  --foreground: oklch(0.15 0.02 255);
+  --primary: oklch(0.65 0.2 55);
+  --primary-foreground: oklch(0.18 0 0);
+  --accent: oklch(0.65 0.2 55);
+  --accent-foreground: oklch(0.18 0 0);
+  --muted: oklch(0.9 0.04 255);
+  --muted-foreground: oklch(0.48 0.02 255);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.83 0.04 255);
+  --ring: oklch(0.65 0.2 55);
+}
+
+[data-theme='dark'] {
+  --background: oklch(0.175 0.035 255);
+  --foreground: oklch(0.97 0.006 255);
+  --primary: oklch(0.7 0.18 55);
+  --primary-foreground: oklch(0.18 0 0);
+  --accent: oklch(0.7 0.18 55);
+  --accent-foreground: oklch(0.18 0 0);
+  --muted: oklch(0.245 0.04 255);
+  --muted-foreground: oklch(0.74 0.018 255);
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.18 0 0);
+  --border: oklch(0.38 0.04 255 / 40%);
+  --ring: oklch(0.7 0.18 55);
+}
+
+/*
+  SVG PATTERN BACKGROUND
+  ──────────────────────
+  A geometric pattern applied site-wide via CSS.
+  Colors adapt to light/dark mode using CSS variables.
+  The pattern is very subtle (low opacity) so content remains readable.
+*/
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    @apply border-border outline-ring/50;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply tracking-tight;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::after,
+  ::before {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

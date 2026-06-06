@@ -1,0 +1,76 @@
+---
+import Card from '@/components/card.astro'
+import Link from '@/components/link.astro'
+import { Badge } from '@/components/ui/badge'
+import { formatDate } from '@/lib/utils'
+import { Icon } from 'astro-icon/components'
+import { Image } from 'astro:assets'
+import type { CollectionEntry } from 'astro:content'
+
+interface Props {
+  project: CollectionEntry<'projects'>
+}
+
+const { project } = Astro.props
+---
+
+<Card class="hover:border-accent/50 hover:bg-muted/50">
+  <Link
+    href={project.data.link}
+    class="flex flex-col gap-4 sm:flex-row"
+    external
+  >
+    {
+      project.data.image && (
+        <div class="w-full sm:max-w-3xs sm:shrink-0">
+          <Image
+            src={project.data.image}
+            alt={project.data.name}
+            width={240}
+            height={126}
+            loading="lazy"
+            class="object-cover"
+          />
+        </div>
+      )
+    }
+    <div class="grow">
+      <h3 class="mb-1 text-lg font-medium">
+        {project.data.name}
+      </h3>
+      <p class="text-muted-foreground mb-2 text-sm">
+        {project.data.description}
+      </p>
+      {
+        project.data.startDate && (
+          <p class="text-muted-foreground/70 mb-2 flex items-center gap-x-1.5 text-xs">
+            <span class="flex items-center gap-x-1.5">
+              <Icon name="lucide:calendar" class="size-3" />
+              <span>
+                {formatDate(project.data.startDate)}
+                {project.data.endDate
+                  ? ` → ${formatDate(project.data.endDate)}`
+                  : ' → Present'}
+              </span>
+            </span>
+          </p>
+        )
+      }
+      <p
+        class="text-muted-foreground/50 mb-2 flex items-center gap-x-1.5 text-xs"
+      >
+        <Icon name="lucide:link" class="size-3" />
+        <span>{project.data.link}</span>
+      </p>
+      {
+        project.data.tags && (
+          <div class="flex flex-wrap gap-2">
+            {project.data.tags.map((tag: string) => (
+              <Badge variant="muted">{tag}</Badge>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </Link>
+</Card>

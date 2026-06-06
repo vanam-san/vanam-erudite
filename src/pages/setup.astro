@@ -1,0 +1,122 @@
+---
+import Breadcrumbs from '@/components/breadcrumbs.astro'
+import PageHead from '@/components/page-head.astro'
+import SectionHeading from '@/components/section-heading.astro'
+import SetupSection from '@/components/setup-section.astro'
+import Layout from '@/layouts/layout.astro'
+
+const hardware = [
+  {
+    name: 'Laptop',
+    description:
+      'Primary development machine. Configured for coding, daily productivity tasks, and professional workflows.',
+    icon: 'lucide:laptop',
+  },
+  {
+    name: 'External Monitor',
+    description:
+      'High-resolution display for extended screen real estate. Perfect for split-pane workflows and design work.',
+    icon: 'lucide:monitor',
+  },
+  {
+    name: 'Mechanical Keyboard',
+    description:
+      'Custom mechanical keyboard with tactile switches. Hot-swappable, wireless, and comfortable for long typing sessions.',
+    icon: 'lucide:keyboard',
+  },
+  {
+    name: 'Ergonomic Mouse',
+    description:
+      'Wireless ergonomic mouse with customizable buttons. Silent clicks and seamless multi-device switching.',
+    icon: 'lucide:mouse',
+  },
+  {
+    name: 'Ergonomic Chair',
+    description:
+      'Adjustable office chair designed for long work sessions. Essential for maintaining good posture during extended coding.',
+    icon: 'lucide:armchair',
+  },
+  {
+    name: 'Network Setup',
+    description:
+      'Home network infrastructure with managed switch, access points, and firewall for secure, reliable connectivity.',
+    icon: 'lucide:wifi',
+  },
+]
+
+const software = [
+  {
+    name: 'VS Code',
+    description:
+      'Primary code editor with extensions for linting, formatting, and language support. Custom keybindings and themes for productivity.',
+    icon: 'lucide:code',
+  },
+  {
+    name: 'Terminal + Shell',
+    description:
+      'Custom terminal setup with a modern shell, prompt theme, and aliases for rapid development workflows.',
+    icon: 'lucide:terminal',
+  },
+  {
+    name: 'Git',
+    description:
+      'Version control for all projects. Custom commit conventions, branch strategies, and automated CI/CD pipelines.',
+    icon: 'lucide:git-branch',
+  },
+  {
+    name: 'Database GUI',
+    description:
+      'Visual database management tool for querying, browsing, and managing SQL and NoSQL databases during development.',
+    icon: 'lucide:database',
+  },
+  {
+    name: 'Figma',
+    description:
+      'Design tool for prototyping UI components, reviewing mockups, and collaborating with design teams.',
+    icon: 'lucide:pen-tool',
+  },
+  {
+    name: 'Neovim',
+    description:
+      'Lightweight editor for quick terminal-based edits. Custom config with LSP, fuzzy finder, and syntax highlighting.',
+    icon: 'lucide:file-code',
+  },
+  {
+    name: 'Password Manager',
+    description:
+      'Secure credential storage for API tokens, SSH keys, and shared team vaults. Essential for maintaining security hygiene.',
+    icon: 'lucide:key-round',
+  },
+  {
+    name: 'Browser',
+    description:
+      'Chromium-based browser with workspaces for separating personal and professional profiles. Tab management and extensions for dev tools.',
+    icon: 'lucide:globe',
+  },
+  {
+    name: 'Note-Taking App',
+    description:
+      'Second brain for notes, documentation, project planning, and runbooks. Templates for meeting notes and technical documentation.',
+    icon: 'lucide:book-open',
+  },
+]
+---
+
+<Layout class="max-w-3xl">
+  <PageHead
+    slot="head"
+    title="Setup"
+    description="Hardware and software used for everyday development."
+  />
+  <Breadcrumbs items={[{ label: 'Setup', icon: 'lucide:wrench' }]} />
+
+  <section class="flex flex-col gap-y-8">
+    <SectionHeading
+      title="Setup"
+      description="A curated list of the hardware and software I use daily for development, infrastructure, and productivity."
+    />
+
+    <SetupSection title="Hardware" icon="lucide:cpu" items={hardware} />
+    <SetupSection title="Software" icon="lucide:layers" items={software} />
+  </section>
+</Layout>

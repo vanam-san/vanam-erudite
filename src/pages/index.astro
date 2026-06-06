@@ -1,0 +1,511 @@
+---
+import BentoCard from '@/components/bento-card.astro'
+import PageHead from '@/components/page-head.astro'
+import { SITE } from '@/consts'
+import Layout from '@/layouts/layout.astro'
+import { getAllGalleries, getAllPosts, getAllProjects } from '@/lib/data-utils'
+import { formatDate } from '@/lib/utils'
+import { getImage } from 'astro:assets'
+
+const posts = await getAllPosts()
+const galleries = await getAllGalleries()
+const projects = await getAllProjects()
+const latestPosts = posts.slice(0, 2)
+const latestGallery = galleries[0]
+
+// Pre-optimize gallery images at build time for the client-side slideshow
+const slideshowImages = latestGallery
+  ? await Promise.all(
+      latestGallery.data.photos.map((img) =>
+        getImage({ src: img, width: 800, height: 600, format: 'webp' }),
+      ),
+    )
+  : []
+---
+
+<Layout class="max-w-5xl">
+  <PageHead slot="head" title="Home" description={SITE.description} />
+
+  <div class="grid auto-rows-[minmax(180px,auto)] grid-cols-6 gap-4">
+    <!-- Hero / About -->
+    <BentoCard class="col-span-6" href="/about">
+      <div class="flex h-full flex-col justify-between gap-4">
+        <div class="flex flex-col gap-y-3">
+          <div class="flex items-center gap-x-3">
+            <svg
+              viewBox="0 0 24 24"
+              class="text-accent size-10"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect
+                x="0.5"
+                y="0.5"
+                width="23"
+                height="23"
+                rx="2.5"
+                stroke="currentColor"
+                stroke-width="1"
+                fill="none"></rect>
+              <path
+                d="M6 8L10 12L6 16"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                fill="none"></path>
+              <line
+                x1="12"
+                y1="16"
+                x2="18"
+                y2="16"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"></line>
+            </svg>
+            <div>
+              <h1 class="text-xl font-medium">{SITE.author}</h1>
+              <p class="text-muted-foreground text-xs">Developer & Creator</p>
+            </div>
+          </div>
+          <p class="relative text-sm leading-relaxed">
+            <span
+              id="hero-bio"
+              class="text-muted-foreground/30 transition-colors duration-300"
+              >{SITE.heroBio}</span
+            >
+          </p>
+        </div>
+        <div
+          class="text-muted-foreground group-hover:text-accent flex items-center gap-x-2 text-xs transition-colors"
+        >
+          <span>View full profile</span>
+          <span class="transition-transform group-hover:translate-x-1"
+            >&rarr;</span
+          >
+        </div>
+      </div>
+    </BentoCard>
+
+    <!-- Latest Blog Posts — list of 2 most recent posts -->
+    {
+      latestPosts.length > 0 && (
+        <BentoCard class="col-span-6 sm:col-span-3">
+          <div class="flex h-full flex-col gap-y-4">
+            <p class="text-muted-foreground text-[10px] font-medium tracking-wider uppercase">
+              Latest Posts
+            </p>
+            <div class="flex flex-1 flex-col gap-y-3">
+              {latestPosts.map((post) => (
+                <a
+                  href={`/blog/${post.id}`}
+                  class="group/post border-border/50 bg-muted/10 hover:border-accent hover:bg-muted/30 flex flex-1 flex-col rounded-xl border p-4 transition-all duration-300"
+                >
+                  <h3 class="line-clamp-2 text-sm leading-snug font-medium">
+                    {post.data.title}
+                  </h3>
+                  <p class="text-muted-foreground mt-1 line-clamp-2 text-xs">
+                    {post.data.description}
+                  </p>
+                  <div class="mt-auto flex items-center justify-between pt-2">
+                    <span class="text-muted-foreground/70 text-[10px]">
+                      {formatDate(post.data.date)}
+                    </span>
+                    <span class="text-muted-foreground group-hover/post:text-accent text-xs font-medium transition-colors">
+                      Read Article &rarr;
+                    </span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </BentoCard>
+      )
+    }
+
+    <!-- Latest Gallery — 2 rows on desktop -->
+    {
+      latestGallery && (
+        <BentoCard
+          class="col-span-6 !p-0 sm:col-span-3"
+          href={`/gallery/${latestGallery.id}`}
+        >
+          <div
+            class="gallery-slideshow relative h-full w-full overflow-hidden rounded-2xl"
+            data-images={JSON.stringify(slideshowImages.map((img) => img.src))}
+          >
+            {slideshowImages.map((img, i) => (
+              <img
+                src={img.src}
+                alt={`${latestGallery.data.title} - Image ${i + 1}`}
+                width={img.options.width}
+                height={img.options.height}
+                class:list={[
+                  'absolute inset-0 h-full w-full object-cover transition-opacity duration-1000',
+                  i === 0 ? 'opacity-100' : 'opacity-0',
+                ]}
+              />
+            ))}
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+            <div class="absolute inset-x-0 bottom-0 z-10 flex flex-col gap-y-1 p-4">
+              <p class="text-[10px] font-medium tracking-wider text-white/60 uppercase">
+                Latest Gallery
+              </p>
+              <h3 class="text-base leading-snug font-medium text-white">
+                {latestGallery.data.title}
+              </h3>
+              <div class="flex items-center justify-between">
+                <p class="text-xs text-white/60">
+                  {latestGallery.data.photos.length} photos
+                </p>
+                <span class="group-hover:text-accent text-xs font-medium text-white/80 transition-colors">
+                  View gallery &rarr;
+                </span>
+              </div>
+            </div>
+          </div>
+        </BentoCard>
+      )
+    }
+
+    <!-- Projects -->
+    {
+      projects[0] && (
+        <BentoCard class="col-span-6 sm:col-span-3" href="/projects">
+          <div class="flex h-full flex-col justify-between gap-y-3">
+            <div class="flex flex-col gap-y-1.5">
+              <p class="text-muted-foreground text-[10px] font-medium tracking-wider uppercase">
+                Projects
+              </p>
+              <h3 class="line-clamp-2 text-base leading-snug font-medium">
+                {projects[0].data.name}
+              </h3>
+              <p class="text-muted-foreground line-clamp-2 text-xs">
+                {projects[0].data.description}
+              </p>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-muted-foreground/70 text-xs">
+                {projects.length} project{projects.length === 1 ? '' : 's'}
+              </span>
+              <span class="text-muted-foreground group-hover:text-accent text-xs font-medium transition-colors">
+                View all &rarr;
+              </span>
+            </div>
+          </div>
+        </BentoCard>
+      )
+    }
+
+    <!-- Setup -->
+    <BentoCard class="col-span-6 sm:col-span-3" href="/setup">
+      <div class="flex h-full flex-col justify-between gap-y-3">
+        <div class="flex flex-col gap-y-1.5">
+          <p
+            class="text-muted-foreground text-[10px] font-medium tracking-wider uppercase"
+          >
+            Setup
+          </p>
+          <h3 class="text-base leading-snug font-medium">Setup</h3>
+          <p class="text-muted-foreground line-clamp-2 text-xs">
+            Hardware and software I use daily for development, infrastructure,
+            and productivity.
+          </p>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-muted-foreground/70 text-xs"
+            >Hardware & Software</span
+          >
+          <span
+            class="text-muted-foreground group-hover:text-accent text-xs font-medium transition-colors"
+            >My setup &rarr;</span
+          >
+        </div>
+      </div>
+    </BentoCard>
+
+    <!-- Time / Weather / Timezone — stacks vertically on mobile -->
+    <BentoCard class="col-span-6">
+      <div
+        class="flex h-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-2"
+      >
+        <div class="flex flex-col gap-y-1.5">
+          <p
+            class="text-muted-foreground text-[10px] font-medium tracking-wider uppercase"
+          >
+            Local Time
+          </p>
+          <p
+            id="bento-time"
+            class="text-2xl font-medium tracking-tight tabular-nums"
+          >
+          </p>
+          <p id="bento-date" class="text-muted-foreground text-xs"></p>
+          <noscript>
+            <p class="text-muted-foreground text-xs">
+              Enable JavaScript for live time
+            </p>
+          </noscript>
+        </div>
+        <div class="flex flex-col gap-y-1.5 sm:items-center">
+          <p
+            class="text-muted-foreground text-[10px] font-medium tracking-wider uppercase"
+          >
+            Weather
+          </p>
+          <p id="bento-weather" class="text-lg font-medium"></p>
+          <p id="bento-weather-desc" class="text-muted-foreground text-xs"></p>
+          <noscript>
+            <p class="text-muted-foreground text-xs">
+              Enable JavaScript for weather
+            </p>
+          </noscript>
+        </div>
+        <div class="flex flex-col gap-y-1.5 sm:items-end">
+          <p
+            id="bento-city"
+            class="text-muted-foreground text-[10px] font-medium tracking-wider uppercase"
+          >
+          </p>
+          <p id="bento-timezone" class="text-sm font-medium"></p>
+        </div>
+      </div>
+    </BentoCard>
+  </div>
+
+  <!-- Gallery slideshow — cycles images every 4s with crossfade -->
+  <script>
+    function initSlideshow() {
+      const container = document.querySelector('.gallery-slideshow')
+      if (!container) return
+
+      let images: string[] = []
+      try {
+        images = JSON.parse(container.getAttribute('data-images') || '[]')
+      } catch {
+        return
+      }
+      if (images.length <= 1) return
+
+      const imgElements = container.querySelectorAll('img')
+      let current = 0
+
+      const id = setInterval(() => {
+        const next = (current + 1) % images.length
+        imgElements[current].classList.remove('opacity-100')
+        imgElements[current].classList.add('opacity-0')
+        imgElements[next].classList.remove('opacity-0')
+        imgElements[next].classList.add('opacity-100')
+        current = next
+      }, 4000)
+
+      document.addEventListener('astro:before-swap', () => clearInterval(id), {
+        once: true,
+      })
+    }
+
+    document.addEventListener('astro:page-load', initSlideshow)
+  </script>
+
+  <!-- Hero text reveal — fades in character by character with a cursor -->
+  <script>
+    function initTyping() {
+      const el = document.getElementById('hero-bio')
+      if (!el) return
+
+      const text = el.textContent || ''
+      const duration = 4000
+      const delay = duration / text.length
+
+      let i = 0
+
+      const revealedSpan = document.createElement('span')
+      revealedSpan.className =
+        'text-muted-foreground transition-colors duration-200'
+      const remainingSpan = document.createElement('span')
+      remainingSpan.className = 'text-muted-foreground/30'
+
+      el.textContent = ''
+      el.appendChild(revealedSpan)
+      el.appendChild(remainingSpan)
+
+      const interval = setInterval(() => {
+        if (i <= text.length) {
+          revealedSpan.textContent = text.slice(0, i)
+          remainingSpan.textContent = text.slice(i)
+
+          i++
+        } else {
+          clearInterval(interval)
+          el.classList.remove('text-muted-foreground/30')
+          el.classList.add('text-muted-foreground')
+        }
+      }, delay)
+
+      document.addEventListener(
+        'astro:before-swap',
+        () => clearInterval(interval),
+        { once: true },
+      )
+    }
+
+    document.addEventListener('astro:page-load', initTyping)
+  </script>
+
+  <!-- Clock, weather, and timezone — fetches weather from open-meteo using city derived from browser timezone -->
+  <script>
+    const WMO_CODES: Record<number, string> = {
+      0: 'Clear sky',
+      1: 'Mainly clear',
+      2: 'Partly cloudy',
+      3: 'Overcast',
+      45: 'Fog',
+      48: 'Depositing rime fog',
+      51: 'Light drizzle',
+      53: 'Moderate drizzle',
+      55: 'Dense drizzle',
+      61: 'Slight rain',
+      63: 'Moderate rain',
+      65: 'Heavy rain',
+      71: 'Slight snow',
+      73: 'Moderate snow',
+      75: 'Heavy snow',
+      80: 'Slight rain showers',
+      81: 'Moderate rain showers',
+      82: 'Violent rain showers',
+      95: 'Thunderstorm',
+      96: 'Thunderstorm with slight hail',
+      99: 'Thunderstorm with heavy hail',
+    }
+
+    const WMO_ICONS: Record<number, string> = {
+      0: '☀️',
+      1: '🌤️',
+      2: '⛅',
+      3: '☁️',
+      45: '🌫️',
+      48: '🌫️',
+      51: '🌦️',
+      53: '🌦️',
+      55: '🌧️',
+      61: '🌧️',
+      63: '🌧️',
+      65: '🌧️',
+      71: '🌨️',
+      73: '🌨️',
+      75: '❄️',
+      80: '🌦️',
+      81: '🌧️',
+      82: '⛈️',
+      95: '⛈️',
+      96: '⛈️',
+      99: '⛈️',
+    }
+
+    // Extract city name from IANA timezone (e.g. "America/New_York" → "New York")
+    function tzToCity(tz: string): string {
+      const parts = tz.split('/')
+      if (parts.length < 2) return tz
+      const last = parts[parts.length - 1]
+      return last.replace(/_/g, ' ')
+    }
+
+    function initClock() {
+      const timeEl = document.getElementById('bento-time')
+      const dateEl = document.getElementById('bento-date')
+      const weatherEl = document.getElementById('bento-weather')
+      const weatherDescEl = document.getElementById('bento-weather-desc')
+      const timezoneEl = document.getElementById('bento-timezone')
+      const cityEl = document.getElementById('bento-city')
+      if (
+        !timeEl ||
+        !dateEl ||
+        !weatherEl ||
+        !weatherDescEl ||
+        !timezoneEl ||
+        !cityEl
+      )
+        return
+
+      const tEl = timeEl
+      const dEl = dateEl
+      const wEl = weatherEl
+      const wdEl = weatherDescEl
+      const tzEl = timezoneEl
+      const cEl = cityEl
+
+      function update() {
+        const now = new Date()
+        tEl.textContent = now.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true,
+        })
+        dEl.textContent = now.toLocaleDateString('en-US', {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+        })
+        try {
+          const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+          tzEl.textContent = tz
+          cEl.textContent = tzToCity(tz)
+        } catch {
+          tzEl.textContent = ''
+          cEl.textContent = ''
+        }
+      }
+
+      update()
+      const clockIntervalId = setInterval(update, 1000)
+
+      let weatherFetching = false
+
+      async function fetchWeatherForTimezone() {
+        if (weatherFetching) return
+        weatherFetching = true
+        try {
+          const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+          const cityName = tzToCity(tz)
+          const geoRes = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1`,
+          )
+          const geoData = await geoRes.json()
+          if (!geoData.results?.length) {
+            wEl.textContent = '--°C'
+            wdEl.textContent = ''
+            return
+          }
+          const { latitude: lat, longitude: lon } = geoData.results[0]
+          const weatherRes = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`,
+          )
+          const weatherData = await weatherRes.json()
+          const temp = Math.round(weatherData.current.temperature_2m)
+          const code = weatherData.current.weather_code as number
+          wEl.textContent = `${WMO_ICONS[code] || ''} ${temp}°C`
+          wdEl.textContent = WMO_CODES[code] || 'Unknown'
+        } catch {
+          wEl.textContent = '--°C'
+          wdEl.textContent = 'Weather unavailable'
+        } finally {
+          weatherFetching = false
+        }
+      }
+
+      fetchWeatherForTimezone()
+      const weatherIntervalId = setInterval(fetchWeatherForTimezone, 600000)
+
+      document.addEventListener(
+        'astro:before-swap',
+        () => {
+          clearInterval(clockIntervalId)
+          clearInterval(weatherIntervalId)
+        },
+        { once: true },
+      )
+    }
+
+    document.addEventListener('astro:page-load', initClock)
+  </script>
+</Layout>

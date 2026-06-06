@@ -1,0 +1,122 @@
+---
+title: 'Adding a New Project'
+description: 'How to showcase your work by adding project cards to the projects page and homepage bento grid.'
+date: 2026-06-03
+order: 3
+tags: ['guide', 'projects', 'portfolio']
+authors: ['vanam']
+---
+
+import Callout from '@/components/callout.astro'
+
+This subpost shows how to add projects to your portfolio. Projects appear on the `/projects` page and in the homepage bento grid.
+
+## Project File Structure
+
+Projects live in `src/content/projects/` as flat Markdown files (not folders):
+
+```
+src/content/projects/
+├── project-a.md
+├── project-b.md
+└── my-cool-project.md
+```
+
+## Creating a Project
+
+Create a new `.md` file in `src/content/projects/`:
+
+```markdown
+---
+name: 'My Cool Project'
+description: 'A web application that does something amazing.'
+tags: ['React', 'TypeScript', 'Tailwind CSS']
+image: '../../../public/static/1200x630.png'
+link: 'https://github.com/username/my-cool-project'
+startDate: '2026-01-15'
+endDate: '2026-03-20'
+---
+```
+
+### Required Fields
+
+| Field | Description |
+|-------|-------------|
+| `name` | Project name displayed on the card |
+| `description` | Short description of what the project does |
+| `tags` | Array of technology tags (e.g., `['React', 'Node.js']`) |
+| `image` | Project screenshot or preview image |
+| `link` | URL to the live project or repository |
+
+### Optional Fields
+
+| Field | Description |
+|-------|-------------|
+| `startDate` | When you started the project |
+| `endDate` | When the project was completed |
+
+<Callout variant="note" title="Image path">
+The `image` field uses a relative path from the `.md` file to an image in `public/`. For a file at `src/content/projects/my-project.md`, the path `../../../public/static/1200x630.png` points to `public/static/1200x630.png`.
+</Callout>
+
+## Image Paths Explained
+
+The relative path depends on where your project file is located:
+
+```
+src/content/projects/my-project.md
+```
+
+To reference `public/static/1200x630.png`:
+
+```yaml
+image: '../../../public/static/1200x630.png'
+```
+
+The path breaks down as:
+- `../` — up from `my-project.md`
+- `../` — up from `projects/`
+- `../` — up from `content/`
+- `public/static/1200x630.png` — the target file
+
+<Callout variant="tip" title="Image tips">
+Use a 1200x630 image for optimal social card display. Place images in `public/static/` for easy reference.
+</Callout>
+
+## Choosing Tags
+
+Tags represent the technologies or tools used in the project. They appear as badges on the project card:
+
+```yaml
+tags: ['React', 'TypeScript', 'Tailwind CSS', 'Supabase']
+```
+
+Keep tags concise — 3-5 per project works well. Use consistent naming (e.g., always `TypeScript` not `Typescript` or `TS`).
+
+## Ordering Projects
+
+Projects are sorted by `startDate` in descending order (newest first). If you omit `startDate`, the project appears after all dated projects.
+
+## Viewing Your Projects
+
+After creating a project file, navigate to `/projects` to see the full grid and check the homepage to see if it appears in the bento grid.
+
+<Callout variant="note" title="Homepage display">
+The homepage shows a limited number of featured projects. The exact number depends on your bento grid configuration in `src/pages/index.astro`.
+</Callout>
+
+## Example
+
+Here's a complete project file:
+
+```markdown
+---
+name: 'Portfolio Website'
+description: 'My personal portfolio built with Astro and Tailwind CSS.'
+tags: ['Astro', 'Tailwind CSS', 'MDX']
+image: '../../../public/static/1200x630.png'
+link: 'https://my-portfolio.vercel.app'
+startDate: '2026-01-01'
+endDate: '2026-02-15'
+---
+```

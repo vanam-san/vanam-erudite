@@ -1,0 +1,26 @@
+---
+import Breadcrumbs from '@/components/breadcrumbs.astro'
+import PageHead from '@/components/page-head.astro'
+import Layout from '@/layouts/layout.astro'
+---
+
+<Layout class="max-w-3xl">
+  <PageHead slot="head" title="About" />
+  <Breadcrumbs items={[{ label: 'About', icon: 'lucide:info' }]} />
+
+  <section>
+    <div class="min-w-full">
+      <div class="prose mb-8">
+        <p class="mt-0">
+          Welcome to your about page. This is a placeholder, customize this to
+          content to tell visitors about yourself.
+        </p>
+        <p>
+          You can edit this page by modifying <code class="bg-muted"
+            >src/pages/about.astro</code
+          >.
+        </p>
+      </div>
+    </div>
+  </section>
+</Layout>

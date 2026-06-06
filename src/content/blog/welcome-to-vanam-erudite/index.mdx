@@ -1,0 +1,117 @@
+---
+title: 'Welcome to Vanam-Erudite'
+description: 'The story behind Vanam-Erudite, why it was created, what it adds over the original Astro Erudite, and how to get started.'
+date: 2026-05-25
+tags: ['introduction', 'overview', 'features', 'announcement']
+authors: ['vanam', 'opencode']
+---
+
+import Callout from '@/components/callout.astro'
+
+[Vanam-Erudite](https://github.com/jktrn/astro-erudite) is a forked and modified version of [Astro Erudite](https://github.com/jktrn/astro-erudite) by enscribe. The goal was simple: take an already excellent blog template and extend it into a full-featured personal portfolio and content platform.
+
+This post covers why the fork exists, every feature that was added or changed, and how to get started.
+
+## Why Fork Astro Erudite?
+
+Astro Erudite is a clean, well-built blog template. But it was designed primarily as a blog — not a portfolio or personal site. Vanam-Erudite adds the missing pieces:
+
+- A **bento grid homepage** that showcases more than just blog posts
+- A **photo gallery system** with lightbox viewing
+- A **setup page** for hardware and software recommendations
+- A **custom color palette** with warm orange accents
+- **More social platforms** (LinkedIn, Instagram, Mastodon, Bluesky)
+
+## Feature Comparison
+
+| Feature | Astro Erudite | Vanam-Erudite |
+|---------|---------------|---------------|
+| Homepage | Blog listing | Bento grid dashboard |
+| Photo galleries | None | Full gallery system with lightbox |
+| Setup page | None | Hardware/software showcase |
+| Legal page | None | Privacy policy and terms |
+| Color theme | Neutral gray | Warm orange/amber |
+| Social links | 4 platforms | 8 platforms |
+| Icon sets | Lucide | Lucide + Simple Icons |
+| Posts per page | 3 | 6 |
+
+## New Features in Detail
+
+### Bento Grid Homepage
+
+The homepage was completely rewritten from a simple blog listing to a **6-card bento grid dashboard**:
+
+1. **Hero / About** — typing animation that reveals your bio character-by-character
+2. **Latest Posts** — the two most recent blog posts as styled cards
+3. **Latest Gallery** — auto-cycling image slideshow from your most recent gallery
+4. **Projects** — highlights your project count with a link to the projects page
+5. **Setup** — links to your hardware and software recommendations
+6. **Live Clock & Weather** — real-time clock, weather from Open-Meteo API, and timezone display
+
+<Callout variant="note" title="Bento card component">
+The bento grid is built with a reusable `BentoCard` component at `src/components/bento-card.astro`. Each card automatically renders as a link if an `href` is provided.
+</Callout>
+
+### Photo Gallery System
+
+The biggest addition is a complete **photo gallery system** — entirely absent from the original:
+
+- **Content collection** at `src/content/gallery/` with cover images and photo arrays
+- **Gallery listing page** at `/gallery` showing all galleries with cover images and photo counts
+- **Detail pages** with breadcrumb navigation, masonry grid, and optional MDX content
+- **Full-screen lightbox** with keyboard navigation (arrow keys, escape), image counter, and click-outside-to-close
+- **Optimized images** via Astro's `<Image>` component for automatic WebP conversion
+
+<Callout variant="tip" title="Gallery structure">
+Each gallery is a folder in `src/content/gallery/` with an `index.mdx` file and image files. The `photos` array in frontmatter controls which images appear and in what order.
+</Callout>
+
+### Setup Page
+
+A new `/setup` page showcases your hardware and software setup:
+
+- **Hardware section** — laptop, monitor, keyboard, mouse, chair, network
+- **Software section** — editor, terminal, Git, database GUI, Figma, browser, and more
+- Each item displays an icon, name, and description
+
+### Custom Color Palette
+
+The entire color system was reworked from neutral grays to a **warm orange/amber accent**:
+
+```css
+/* Original: neutral gray */
+--primary: oklch(0.205 0 0);
+
+/* Vanam-Erudite: warm orange */
+--primary: oklch(0.65 0.2 55);
+--accent: oklch(0.65 0.2 55);
+```
+
+The custom `accent` and `accent-foreground` CSS variables were added alongside the existing theme tokens. Both light and dark modes use the warm palette.
+
+## Getting Started
+
+To use Vanam-Erudite, clone the repo and customize:
+
+```bash
+git clone https://github.com/your-username/vanam-erudite.git
+cd vanam-erudite
+npm install
+npm run dev
+```
+
+Edit `src/consts.ts` to set your site title, description, social links, and navigation.
+
+<Callout variant="tip" title="Credit">
+Vanam-Erudite is built on the excellent work of [enscribe](https://enscribe.dev) and the [Astro Erudite](https://github.com/jktrn/astro-erudite) project. All original features are preserved — Vanam-Erudite only adds on top of them.
+</Callout>
+
+## Next Steps
+
+Ready to dive deeper? Check out the other posts in this series:
+
+1. **Customizing Social Links and Adding Authors** — set up your social presence
+2. **Creating a New Blog Post** — write and publish with MDX
+3. **Adding a New Project** — showcase your work
+
+Or explore the codebase — the template is designed to be easy to modify and extend.

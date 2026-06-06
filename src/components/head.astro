@@ -1,0 +1,73 @@
+---
+import { SITE, UMAMI } from '@/consts'
+import { ClientRouter } from 'astro:transitions'
+import Favicons from './favicons.astro'
+---
+
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=yes"
+  />
+  <meta name="generator" content={Astro.generator} />
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta
+    name="format-detection"
+    content="telephone=no,date=no,address=no,email=no,url=no"
+  />
+
+  <meta
+    name="theme-color"
+    content="#121212"
+    media="(prefers-color-scheme: dark)"
+  />
+  <meta
+    name="theme-color"
+    content="#f0f4ff"
+    media="(prefers-color-scheme: light)"
+  />
+
+  <link rel="sitemap" href="/sitemap-index.xml" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link
+    rel="alternate"
+    type="application/rss+xml"
+    title={SITE.title}
+    href={new URL('rss.xml', Astro.site)}
+  />
+
+  <meta
+    http-equiv="Content-Security-Policy"
+    content={`default-src 'self'; script-src 'self' 'unsafe-inline' https://${UMAMI.host} https://giscus.app; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://giscus.app; connect-src 'self' https://${UMAMI.host} https://geocoding-api.open-meteo.com https://api.open-meteo.com https://giscus.app; img-src 'self' data: blob: https://avatars.githubusercontent.com; font-src 'self'; frame-src https://giscus.app;`}
+  />
+
+  {
+    UMAMI.websiteId && (
+      <>
+        <link rel="dns-prefetch" href={`https://${UMAMI.host}`} />
+        <link rel="preconnect" href={`https://${UMAMI.host}`} crossorigin />
+      </>
+    )
+  }
+
+  <Favicons />
+  <ClientRouter />
+
+  {
+    UMAMI.websiteId && (
+      <script
+        is:inline
+        defer
+        src={`https://${UMAMI.host}/script.js`}
+        data-website-id={UMAMI.websiteId}
+      />
+    )
+  }
+
+  <slot />
+</head>

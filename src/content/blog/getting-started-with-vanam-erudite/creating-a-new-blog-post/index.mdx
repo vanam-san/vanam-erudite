@@ -1,0 +1,140 @@
+---
+title: 'Creating a New Blog Post'
+description: 'Step-by-step guide to writing and publishing blog posts with MDX, including frontmatter, tags, drafts, and MDX components.'
+date: 2026-06-03
+order: 2
+tags: ['guide', 'blog', 'mdx']
+authors: ['vanam']
+---
+
+import Callout from '@/components/callout.astro'
+
+This subpost walks you through creating, formatting, and publishing blog posts on your Vanam-Erudite site.
+
+## Post Structure
+
+Each blog post lives in its own folder under `src/content/blog/`:
+
+```
+src/content/blog/
+└── my-new-post/
+    └── index.mdx
+```
+
+The folder name becomes the URL slug — `my-new-post` renders at `/blog/my-new-post`.
+
+## Frontmatter
+
+Every post needs frontmatter at the top of the file:
+
+```yaml
+---
+title: 'My New Post'
+description: 'A concise description for SEO and social cards.'
+date: 2026-06-03
+tags: ['tutorial', 'astro']
+authors: ['vanam']
+draft: false
+---
+```
+
+### Required Fields
+
+| Field | Description |
+|-------|-------------|
+| `title` | Post title — displayed as the `<h1>` heading |
+| `description` | Short summary used in meta tags and social cards |
+| `date` | Publication date in `YYYY-MM-DD` format |
+
+### Optional Fields
+
+| Field | Description |
+|-------|-------------|
+| `tags` | Array of tag strings for filtering |
+| `authors` | Array of author IDs (must match files in `src/content/authors/`) |
+| `image` | Featured image for social cards |
+| `draft` | Set to `true` to hide from blog listings |
+| `order` | Number for ordering subposts within a series |
+
+<Callout variant="tip" title="Drafts">
+Set `draft: true` in frontmatter to keep working on a post without it appearing on the site. Draft posts are excluded from the blog listing and RSS feed.
+</Callout>
+
+## Writing Content
+
+Write your content using Markdown or MDX below the frontmatter. Start with `##` (h2) headings — the `h1` is auto-generated from your `title`.
+
+```markdown
+## Introduction
+
+This is my first blog post. Here's some **bold** and *italic* text.
+
+## Code Examples
+
+Inline code looks like `this`. Fenced code blocks get syntax highlighting:
+
+```typescript
+const greeting = 'Hello, world!'
+console.log(greeting)
+```
+
+## Lists
+
+- Item one
+- Item two
+- Item three
+
+1. First step
+2. Second step
+3. Third step
+```
+
+## Using MDX Components
+
+Vanam-Erudite supports MDX, so you can import and use components directly in your posts.
+
+### Callouts
+
+Import the `Callout` component to highlight important information:
+
+```mdx
+import Callout from '@/components/callout.astro'
+
+<Callout variant="tip" title="Handy tip">
+This is a callout with a tip style.
+</Callout>
+```
+
+Available variants: `note`, `tip`, `warning`, `danger`, `important`, `definition`, `theorem`, `lemma`, `proof`, `corollary`, `proposition`, `axiom`, `conjecture`, `notation`, `remark`, `intuition`, `recall`, `explanation`, `example`, `exercise`, `problem`, `answer`, `solution`, `summary`.
+
+### Links and Images
+
+Standard Markdown links and images work as expected:
+
+```markdown
+[Link text](https://example.com)
+![Alt text](./image.png)
+```
+
+<Callout variant="note" title="External links">
+All external links automatically open in a new tab with `rel="nofollow noreferrer noopener"` for security.
+</Callout>
+
+## Adding Tags
+
+Tags help readers discover related content. Add them as an array in frontmatter:
+
+```yaml
+tags: ['astro', 'tutorial', 'web-development']
+```
+
+Tags create individual listing pages at `/tags/your-tag`. The tag listing is automatically generated — no extra setup needed.
+
+## Publishing
+
+1. Set `draft: false` when ready
+2. Commit and push — your post will be live on the next deployment
+
+<Callout variant="tip" title="Reading time">
+Reading time is calculated automatically based on word count. No need to add it manually.
+</Callout>
