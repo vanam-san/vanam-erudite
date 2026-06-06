@@ -35,7 +35,7 @@ import { GISCUS } from '@/consts'
     if (existingIframe) existingIframe.remove()
 
     const script = document.createElement('script')
-    script.src = 'https://giscus.app/widget.js'
+    script.src = 'https://giscus.app/client.js'
     script.setAttribute('data-repo', repo)
     script.setAttribute('data-repo-id', repoId)
     script.setAttribute('data-category', category || 'Comments')
