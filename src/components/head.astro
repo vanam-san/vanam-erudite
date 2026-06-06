@@ -60,12 +60,23 @@ import Favicons from './favicons.astro'
 
   {
     UMAMI.websiteId && (
-      <script
-        is:inline
-        defer
-        src={`https://${UMAMI.host}/script.js`}
-        data-website-id={UMAMI.websiteId}
-      />
+      <>
+        <script
+          is:inline
+          defer
+          src={`https://${UMAMI.host}/script.js`}
+          data-website-id={UMAMI.websiteId}
+        />
+        <script is:inline>
+          // Astro's ClientRouter uses SPA navigation — Umami's auto-track only fires
+          // on the initial page load. Re-trigger tracking after each view transition swap.
+          document.addEventListener('astro:after-swap', function () {
+            if (window.umami) {
+              window.umami.track()
+            }
+          })
+        </script>
+      </>
     )
   }
 
