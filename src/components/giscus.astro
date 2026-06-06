@@ -34,6 +34,11 @@ import { GISCUS } from '@/consts'
     const existingIframe = container.querySelector('iframe.giscus-frame')
     if (existingIframe) existingIframe.remove()
 
+    const currentTheme =
+      document.documentElement.getAttribute('data-theme') ||
+      localStorage.getItem('theme') ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+
     const script = document.createElement('script')
     script.src = 'https://giscus.app/client.js'
     script.setAttribute('data-repo', repo)
@@ -46,7 +51,7 @@ import { GISCUS } from '@/consts'
     script.setAttribute('data-emit-metadata', '0')
     script.setAttribute('data-input-position', 'top')
     script.setAttribute('data-lang', 'en')
-    script.setAttribute('data-theme', 'preferred_color_scheme')
+    script.setAttribute('data-theme', currentTheme)
     script.crossOrigin = 'anonymous'
     script.async = true
     script.classList.add('giscus-script')
@@ -54,6 +59,35 @@ import { GISCUS } from '@/consts'
     container.appendChild(script)
   }
 
-  document.addEventListener('astro:page-load', loadGiscus)
-  document.addEventListener('astro:after-swap', loadGiscus)
+  function syncGiscusTheme(theme: string) {
+    const iframe = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame')
+    if (!iframe) return
+    iframe.contentWindow?.postMessage(
+      { giscus: { setConfig: { theme } } },
+      'https://giscus.app'
+    )
+  }
+
+  const themeObserver = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.attributeName === 'data-theme') {
+        const newTheme = document.documentElement.getAttribute('data-theme')
+        if (newTheme) syncGiscusTheme(newTheme)
+      }
+    }
+  })
+
+  function startObserver() {
+    themeObserver.disconnect()
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    loadGiscus()
+    startObserver()
+  })
+  document.addEventListener('astro:after-swap', () => {
+    loadGiscus()
+    startObserver()
+  })
 </script>
