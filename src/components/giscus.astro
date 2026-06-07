@@ -10,7 +10,7 @@ import { GISCUS } from '@/consts'
   data-category={GISCUS.category}
   data-category-id={GISCUS.categoryId}
 >
-  <div id="giscus-comments" />
+  <div id="giscus-comments"></div>
 </div>
 
 <script>
@@ -24,7 +24,9 @@ import { GISCUS } from '@/consts'
     const categoryId = container.getAttribute('data-category-id')
 
     if (!repo || !repoId || !categoryId) {
-      console.warn('[Giscus] Missing required config. Set PUBLIC_GISCUS_REPO, PUBLIC_GISCUS_REPO_ID, and PUBLIC_GISCUS_CATEGORY_ID environment variables.')
+      console.warn(
+        '[Giscus] Missing required config. Set PUBLIC_GISCUS_REPO, PUBLIC_GISCUS_REPO_ID, and PUBLIC_GISCUS_CATEGORY_ID environment variables.',
+      )
       return
     }
 
@@ -37,7 +39,9 @@ import { GISCUS } from '@/consts'
     const currentTheme =
       document.documentElement.getAttribute('data-theme') ||
       localStorage.getItem('theme') ||
-      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      (window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light')
 
     const script = document.createElement('script')
     script.src = 'https://giscus.app/client.js'
@@ -60,11 +64,13 @@ import { GISCUS } from '@/consts'
   }
 
   function syncGiscusTheme(theme: string) {
-    const iframe = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame')
+    const iframe = document.querySelector<HTMLIFrameElement>(
+      'iframe.giscus-frame',
+    )
     if (!iframe) return
     iframe.contentWindow?.postMessage(
       { giscus: { setConfig: { theme } } },
-      'https://giscus.app'
+      'https://giscus.app',
     )
   }
 
@@ -79,7 +85,10 @@ import { GISCUS } from '@/consts'
 
   function startObserver() {
     themeObserver.disconnect()
-    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    })
   }
 
   document.addEventListener('astro:page-load', () => {

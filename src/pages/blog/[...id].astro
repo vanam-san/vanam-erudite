@@ -10,6 +10,7 @@ import TOCHeader from '@/components/toc-header.astro'
 import TOCSidebar from '@/components/toc-sidebar.astro'
 import { badgeVariants } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { GISCUS } from '@/consts'
 import Layout from '@/layouts/layout.astro'
 import {
   getAdjacentPosts,
@@ -25,7 +26,6 @@ import {
   parseAuthors,
 } from '@/lib/data-utils'
 import { formatDate } from '@/lib/utils'
-import { GISCUS } from '@/consts'
 import { Icon } from 'astro-icon/components'
 import { Image } from 'astro:assets'
 import { render } from 'astro:content'
