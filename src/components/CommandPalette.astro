@@ -84,12 +84,6 @@ const indexJson = JSON.stringify(entries)
       role="listbox"
       aria-label="Search results"
     ></ul>
-    <div
-      class="cmd-status sr-only"
-      id="cmd-status"
-      role="status"
-      aria-live="polite"
-    ></div>
     <div class="cmd-footer" aria-hidden="true">
       <span class="cmd-footer-hint"><kbd>↑↓</kbd> navigate</span>
       <span class="cmd-footer-hint"><kbd>↵</kbd> open</span>
@@ -381,14 +375,12 @@ const indexJson = JSON.stringify(entries)
       "cmd-input",
     ) as HTMLInputElement | null
     const results = document.getElementById("cmd-results")
-    const status = document.getElementById("cmd-status")
     if (!overlay || !input || !results || overlay.dataset.bound) return
     overlay.dataset.bound = "true"
 
     const ov: HTMLElement = overlay
     const inp: HTMLInputElement = input
     const res: HTMLElement = results
-    const statusEl: HTMLElement | null = status
 
     const entries = readIndex()
 
@@ -437,7 +429,6 @@ const indexJson = JSON.stringify(entries)
       current = []
       active = 0
       res.innerHTML = `<li class="cmd-empty">Type to search posts, pages and tags</li>`
-      if (statusEl) statusEl.textContent = "Type to search"
       inp.setAttribute("aria-expanded", "false")
       inp.removeAttribute("aria-activedescendant")
     }
@@ -462,12 +453,6 @@ const indexJson = JSON.stringify(entries)
             </li>`,
           )
           .join("")
-      }
-      if (statusEl) {
-        statusEl.textContent =
-          items.length === 0
-            ? "No results"
-            : `${items.length} result${items.length === 1 ? "" : "s"}`
       }
       inp.setAttribute("aria-expanded", items.length > 0 ? "true" : "false")
       syncActive()

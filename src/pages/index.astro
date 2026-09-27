@@ -55,21 +55,11 @@ const formatShortDate = (date: Date) =>
       <span class="bento-note" data-tail="up" style="--tail-x: 22%">
         More on the <a href="/about">about page</a>.
       </span>
-      <a href="/about" class="bento-action circle-action">
-        <span class="sr-only">More about {firstName}</span>
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M7 17 17 7"></path>
-          <path d="M12 7h5v5"></path>
-        </svg>
-      </a>
+      <a
+        href="/about"
+        class="bento-tile-link-overlay"
+        aria-label={`About ${firstName}`}
+      ></a>
     </section>
 
     <!-- LATEST POST — banner feature -->
@@ -84,22 +74,9 @@ const formatShortDate = (date: Date) =>
         </div>
         <a
           href={`/blog/${latestPost.id}`}
-          class="bento-action circle-action"
-        >
-          <span class="sr-only">Read latest post: {latestPost.data.title}</span>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M7 17 17 7"></path>
-            <path d="M12 7h5v5"></path>
-          </svg>
-        </a>
+          class="bento-tile-link-overlay"
+          aria-label={`Latest post: ${latestPost.data.title}`}
+        ></a>
       </article>
     )}
 
@@ -119,21 +96,11 @@ const formatShortDate = (date: Date) =>
           </li>
         ))}
       </ul>
-      <a href="/blog" class="bento-action circle-action">
-        <span class="sr-only">View all posts</span>
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M7 17 17 7"></path>
-          <path d="M12 7h5v5"></path>
-        </svg>
-      </a>
+      <a
+        href="/blog"
+        class="bento-tile-link-overlay"
+        aria-label="Open blog"
+      ></a>
     </section>
 
     <!-- PROJECTS -->
@@ -157,21 +124,11 @@ const formatShortDate = (date: Date) =>
           </li>
         ))}
       </ul>
-      <a href="/projects" class="bento-action circle-action">
-        <span class="sr-only">View all projects</span>
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M7 17 17 7"></path>
-          <path d="M12 7h5v5"></path>
-        </svg>
-      </a>
+      <a
+        href="/projects"
+        class="bento-tile-link-overlay"
+        aria-label="Open projects"
+      ></a>
     </section>
 
     <!-- PHOTOGRAPHY -->
@@ -188,21 +145,11 @@ const formatShortDate = (date: Date) =>
           </li>
         ))}
       </ul>
-      <a href="/gallery" class="bento-action circle-action">
-        <span class="sr-only">View all galleries</span>
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M7 17 17 7"></path>
-          <path d="M12 7h5v5"></path>
-        </svg>
-      </a>
+      <a
+        href="/gallery"
+        class="bento-tile-link-overlay"
+        aria-label="Open gallery"
+      ></a>
     </section>
 
     <!-- LOCAL / WEATHER -->

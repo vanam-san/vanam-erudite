@@ -85,6 +85,21 @@
   margin: var(--space-2xs);
 }
 
+/* ── Whole-tile link (stretched overlay) ──────────────────
+   The overlay makes the tile highlight act as the section link.
+   Inner content links (list rows, notes) stay clickable above it,
+   so no nested anchors and no lost keyboard targets. */
+.bento-tile-link-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.bento-tile a:not(.bento-tile-link-overlay) {
+  position: relative;
+  z-index: 1;
+}
+
 /* ── Floating note (speech-bubble tooltip) ────────────── */
 .bento-note {
   display: block;
