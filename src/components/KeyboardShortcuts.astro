@@ -1,0 +1,226 @@
+---
+/* vanam.dev keyboard-shortcuts dialog — native <dialog>, opened with `?`. */
+---
+
+<dialog id="shortcuts-dialog" aria-label="Keyboard shortcuts">
+  <form method="dialog">
+    <header>
+      <h2>Keyboard Shortcuts</h2>
+      <button
+        type="button"
+        class="shortcuts-close"
+        aria-label="Close shortcuts dialog"
+        data-close-shortcuts
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          width="18"
+          height="18"
+          aria-hidden="true"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </header>
+    <ul class="shortcuts-list">
+      <li class="shortcuts-row">
+        <span class="shortcuts-keys"><kbd>?</kbd></span>
+        <span class="shortcuts-desc">Show keyboard shortcuts</span>
+      </li>
+      <li class="shortcuts-row">
+        <span class="shortcuts-keys"
+          ><kbd>⌘</kbd><span class="shortcuts-sep">+</span><kbd>K</kbd></span
+        >
+        <span class="shortcuts-desc">Open command palette</span>
+      </li>
+      <li class="shortcuts-row">
+        <span class="shortcuts-keys"><kbd>/</kbd></span>
+        <span class="shortcuts-desc">Focus search</span>
+      </li>
+      <li class="shortcuts-row">
+        <span class="shortcuts-keys"><kbd>Esc</kbd></span>
+        <span class="shortcuts-desc">Close dialog / palette</span>
+      </li>
+      <li class="shortcuts-row">
+        <span class="shortcuts-keys"
+          ><kbd>↑</kbd><span class="shortcuts-sep">+</span><kbd>↓</kbd></span
+        >
+        <span class="shortcuts-desc">Navigate results</span>
+      </li>
+      <li class="shortcuts-row">
+        <span class="shortcuts-keys"><kbd>↵</kbd></span>
+        <span class="shortcuts-desc">Open selected result</span>
+      </li>
+    </ul>
+    <footer>
+      <span class="shortcuts-hint">Press <kbd>?</kbd> to toggle</span>
+    </footer>
+  </form>
+</dialog>
+
+<style>
+  dialog {
+    width: calc(100% - var(--space-l) * 2);
+    max-width: 24rem;
+    margin: auto;
+    padding: 0;
+    color: var(--foreground);
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 16px 48px rgb(0 0 0 / 0.25);
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+    &::backdrop {
+      background: color-mix(in oklab, var(--background) 60%, transparent);
+      backdrop-filter: blur(var(--blur-sm));
+    }
+  }
+
+  dialog[open] {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-s) var(--space-s) var(--space-xs);
+    border-bottom: 1px solid var(--border);
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--step-0);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .shortcuts-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    color: var(--muted-foreground);
+    border-radius: var(--radius-sm);
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+
+    &:hover {
+      color: var(--foreground);
+      background-color: var(--muted);
+    }
+  }
+
+  .shortcuts-list {
+    padding: var(--space-xs) var(--space-s);
+  }
+
+  .shortcuts-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    padding: var(--space-2xs) 0;
+  }
+
+  .shortcuts-keys {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--space-3xs);
+
+    kbd {
+      min-width: 1.5em;
+      padding: 2px 6px;
+      font-family: var(--font-mono);
+      font-size: var(--step--2);
+      line-height: 1.4;
+      color: var(--foreground);
+      text-align: center;
+      background: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xs);
+    }
+  }
+
+  .shortcuts-sep {
+    font-size: var(--step--3);
+    color: var(--muted-foreground);
+  }
+
+  .shortcuts-desc {
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+    color: var(--muted-foreground);
+    text-align: right;
+  }
+
+  footer {
+    padding: var(--space-xs) var(--space-s);
+    text-align: center;
+    border-top: 1px solid var(--border);
+  }
+
+  .shortcuts-hint {
+    font-family: var(--font-mono);
+    font-size: var(--step--3);
+    color: var(--muted-foreground);
+
+    kbd {
+      font-family: var(--font-mono);
+      font-size: inherit;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    dialog {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function initShortcuts() {
+    const dialog = document.getElementById(
+      "shortcuts-dialog",
+    ) as HTMLDialogElement | null
+    if (!dialog || dialog.dataset.bound) return
+    dialog.dataset.bound = "true"
+
+    dialog
+      .querySelector("[data-close-shortcuts]")
+      ?.addEventListener("click", () => dialog.close())
+
+    document.addEventListener("keydown", (e) => {
+      const target = e.target as HTMLElement | null
+      const typing =
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      if (e.key === "?" && !typing) {
+        e.preventDefault()
+        if (dialog.open) dialog.close()
+        else dialog.showModal()
+      }
+    })
+  }
+
+  document.addEventListener("astro:page-load", initShortcuts)
+  document.addEventListener("astro:after-swap", initShortcuts)
+  initShortcuts()
+</script>

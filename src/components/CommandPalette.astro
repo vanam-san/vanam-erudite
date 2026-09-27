@@ -1,0 +1,600 @@
+---
+import { getCollection } from "astro:content"
+import { NAVIGATION } from "@/consts"
+
+type IndexEntry = { title: string; desc: string; href: string }
+
+const staticEntries: IndexEntry[] = [
+  { title: "Home", desc: "page", href: "/" },
+  ...NAVIGATION.map((item) => ({
+    title: item.label,
+    desc: "page",
+    href: item.href,
+  })),
+  { title: "Tags", desc: "page", href: "/tags" },
+  { title: "Legal", desc: "page", href: "/legal" },
+]
+
+const posts = await getCollection("blog", ({ data }) => !data.draft)
+const galleries = await getCollection("gallery", ({ data }) => !data.draft)
+const projects = await getCollection("projects", ({ data }) => !data.draft)
+
+const entries: IndexEntry[] = [
+  ...staticEntries,
+  ...posts.map((post) => ({
+    title: post.data.title,
+    desc: `blog · ${(post.data.tags ?? []).join(", ")}`,
+    href: `/blog/${post.id}`,
+  })),
+  ...galleries.map((gallery) => ({
+    title: gallery.data.title,
+    desc: "gallery",
+    href: `/gallery/${gallery.id}`,
+  })),
+  ...projects.map((project) => ({
+    title: project.data.name,
+    desc: "project",
+    href: project.data.link ?? "/projects",
+  })),
+]
+
+const indexJson = JSON.stringify(entries)
+---
+
+<div
+  class="cmd-overlay"
+  id="cmd-overlay"
+  data-open="false"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Site search"
+  data-astro-transition-persist="command-palette"
+>
+  <div class="cmd-modal">
+    <div class="cmd-input-wrap">
+      <svg
+        class="cmd-input-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        aria-hidden="true"
+      >
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.3-4.3"></path>
+      </svg>
+      <input
+        type="text"
+        id="cmd-input"
+        class="cmd-input"
+        placeholder="Search posts, pages, tags..."
+        aria-label="Search posts, pages, tags, and authors"
+        autocomplete="off"
+        spellcheck="false"
+        role="combobox"
+        aria-expanded="false"
+        aria-controls="cmd-results"
+        aria-autocomplete="list"
+      >
+      <span class="cmd-input-kbd" aria-hidden="true">ESC</span>
+    </div>
+    <ul
+      class="cmd-results"
+      id="cmd-results"
+      role="listbox"
+      aria-label="Search results"
+    ></ul>
+    <div
+      class="cmd-status sr-only"
+      id="cmd-status"
+      role="status"
+      aria-live="polite"
+    ></div>
+    <div class="cmd-footer" aria-hidden="true">
+      <span class="cmd-footer-hint"><kbd>↑↓</kbd> navigate</span>
+      <span class="cmd-footer-hint"><kbd>↵</kbd> open</span>
+      <span class="cmd-footer-hint"><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="cmd-index" is:inline set:html={indexJson} />
+
+<style>
+  .cmd-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 15vh;
+    background: color-mix(in oklab, var(--background) 60%, transparent);
+    backdrop-filter: blur(var(--blur-sm));
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity 0.2s ease,
+      visibility 0.2s ease;
+  }
+
+  .cmd-overlay[data-open="true"] {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .cmd-modal {
+    width: 100%;
+    max-width: 34rem;
+    overflow: hidden;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 16px 48px rgb(0 0 0 / 0.25);
+    transform: scale(0.98);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .cmd-overlay[data-open="true"] .cmd-modal {
+    transform: scale(1);
+  }
+
+  .cmd-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-s);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cmd-input-icon {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    color: var(--muted-foreground);
+  }
+
+  .cmd-input {
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-xs) 0;
+    font-family: var(--font-mono);
+    font-size: var(--step-0);
+    color: var(--foreground);
+    background: none;
+    border: none;
+    outline: none;
+  }
+
+  .cmd-input:focus,
+  .cmd-input:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+
+  .cmd-input::placeholder {
+    color: var(--muted-foreground);
+  }
+
+  .cmd-input-kbd {
+    padding: 2px 6px;
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--muted-foreground);
+    white-space: nowrap;
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+  }
+
+  .cmd-results {
+    max-height: 24rem;
+    margin: 0;
+    padding: var(--space-2xs);
+    overflow-y: auto;
+    list-style: none;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .cmd-results:empty {
+    display: none;
+  }
+
+  .cmd-empty {
+    padding: var(--space-l) var(--space-s);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--muted-foreground);
+    text-align: center;
+  }
+
+  .cmd-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs);
+    color: inherit;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+  }
+
+  .cmd-item:hover,
+  .cmd-item[data-active="true"] {
+    background-color: color-mix(in oklab, var(--primary) 8%, transparent);
+  }
+
+  .cmd-item-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cmd-item-title {
+    overflow: hidden;
+    font-family: var(--font-display);
+    font-size: var(--step--1);
+    font-weight: var(--font-weight-medium);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cmd-item-desc {
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--muted-foreground);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cmd-item-arrow {
+    flex-shrink: 0;
+    color: var(--muted-foreground);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .cmd-item:hover .cmd-item-arrow,
+  .cmd-item[data-active="true"] .cmd-item-arrow {
+    opacity: 1;
+  }
+
+  .cmd-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    padding: var(--space-2xs) var(--space-s);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--muted-foreground);
+    border-top: 1px solid var(--border);
+  }
+
+  .cmd-footer-hint {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+  }
+
+  .cmd-footer-hint kbd {
+    font-family: var(--font-mono);
+    font-size: inherit;
+  }
+
+  @media (width < 48rem) {
+    .cmd-overlay {
+      padding-top: var(--space-xl);
+      padding-inline: var(--space-s);
+    }
+
+    .cmd-modal {
+      max-width: 100%;
+    }
+
+    .cmd-results {
+      max-height: 50vh;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cmd-overlay,
+    .cmd-modal {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  type IndexEntry = { title: string; desc: string; href: string }
+
+  function readIndex(): IndexEntry[] {
+    try {
+      const raw = document.getElementById("cmd-index")?.textContent ?? "[]"
+      return JSON.parse(raw) as IndexEntry[]
+    } catch {
+      return []
+    }
+  }
+
+  function highlight(title: string, query: string): string {
+    if (!query) return title.replace(/</g, "&lt;")
+    const safe = title.replace(/</g, "&lt;")
+    const i = safe.toLowerCase().indexOf(query.toLowerCase())
+    if (i < 0) return safe
+    return (
+      safe.slice(0, i) +
+      '<mark class="cmd-highlight">' +
+      safe.slice(i, i + query.length) +
+      "</mark>" +
+      safe.slice(i + query.length)
+    )
+  }
+
+  type PagefindResultData = {
+    url: string
+    meta: { title?: string }
+    excerpt: string
+  }
+
+  type PagefindAPI = {
+    init: () => Promise<void>
+    preload: (term: string) => Promise<unknown>
+    search: (term: string) => Promise<{
+      results: { data: () => Promise<PagefindResultData> }[]
+    }>
+  }
+
+  // Lazy-load the generated Pagefind bundle. Absent in `astro dev`
+  // (index only exists in dist), so fall back to the static index.
+  let pagefindPromise: Promise<PagefindAPI | null> | null = null
+
+  function loadPagefind(): Promise<PagefindAPI | null> {
+    if (!pagefindPromise) {
+      const bundleUrl: string = "/pagefind/pagefind.js"
+      pagefindPromise = import(/* @vite-ignore */ bundleUrl)
+        .then(async (mod: unknown) => {
+          const api = mod as PagefindAPI
+          await api.init()
+          return api
+        })
+        .catch(() => null)
+    }
+    return pagefindPromise
+  }
+
+  // Pagefind excerpts are text with <mark> wrappers — escape everything
+  // except the marks.
+  function sanitizeExcerpt(excerpt: string): string {
+    return excerpt
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/&lt;(\/?mark)&gt;/g, "<$1>")
+  }
+
+  function initPalette() {
+    const overlay = document.getElementById("cmd-overlay")
+    const input = document.getElementById(
+      "cmd-input",
+    ) as HTMLInputElement | null
+    const results = document.getElementById("cmd-results")
+    const status = document.getElementById("cmd-status")
+    if (!overlay || !input || !results || overlay.dataset.bound) return
+    overlay.dataset.bound = "true"
+
+    const ov: HTMLElement = overlay
+    const inp: HTMLInputElement = input
+    const res: HTMLElement = results
+    const statusEl: HTMLElement | null = status
+
+    const entries = readIndex()
+
+    type ResultItem = {
+      title: string
+      desc: string
+      descHtml: boolean
+      href: string
+    }
+
+    let active = 0
+    let current: ResultItem[] = []
+    let searchToken = 0
+
+    function toItem(e: IndexEntry): ResultItem {
+      return { title: e.title, desc: e.desc, descHtml: false, href: e.href }
+    }
+
+    function staticSearch(query: string): ResultItem[] {
+      const q = query.trim().toLowerCase()
+      if (q.length === 0) return entries.slice(0, 8).map(toItem)
+      return entries
+        .filter(
+          (e) =>
+            e.title.toLowerCase().includes(q) ||
+            e.desc.toLowerCase().includes(q),
+        )
+        .slice(0, 10)
+        .map(toItem)
+    }
+
+    function syncActive() {
+      res.querySelectorAll(".cmd-item").forEach((el, i) => {
+        el.setAttribute("data-active", String(i === active))
+        el.setAttribute("aria-selected", String(i === active))
+      })
+      if (current.length > 0) {
+        inp.setAttribute("aria-activedescendant", `cmd-item-${active}`)
+      } else {
+        inp.removeAttribute("aria-activedescendant")
+      }
+    }
+
+    // Empty query shows a hint — no page list until the user types.
+    function paintHint() {
+      current = []
+      active = 0
+      res.innerHTML = `<li class="cmd-empty">Type to search posts, pages and tags</li>`
+      if (statusEl) statusEl.textContent = "Type to search"
+      inp.setAttribute("aria-expanded", "false")
+      inp.removeAttribute("aria-activedescendant")
+    }
+
+    function paint(items: ResultItem[], rawQuery: string) {
+      current = items
+      active = 0
+
+      if (items.length === 0) {
+        res.innerHTML = `<li class="cmd-empty">No results for &ldquo;${rawQuery.replace(/</g, "&lt;")}&rdquo;</li>`
+      } else {
+        res.innerHTML = items
+          .map(
+            (e, i) => `<li>
+              <a href="${e.href.replace(/"/g, "%22")}" class="cmd-item" id="cmd-item-${i}" role="option" aria-selected="${i === active}" data-active="${i === active}" data-index="${i}">
+                <span class="cmd-item-text">
+                  <span class="cmd-item-title">${highlight(e.title, rawQuery.trim())}</span>
+                  <span class="cmd-item-desc">${e.descHtml ? e.desc : e.desc.replace(/</g, "&lt;")}</span>
+                </span>
+                <span class="cmd-item-arrow" aria-hidden="true">&rarr;</span>
+              </a>
+            </li>`,
+          )
+          .join("")
+      }
+      if (statusEl) {
+        statusEl.textContent =
+          items.length === 0
+            ? "No results"
+            : `${items.length} result${items.length === 1 ? "" : "s"}`
+      }
+      inp.setAttribute("aria-expanded", items.length > 0 ? "true" : "false")
+      syncActive()
+    }
+
+    async function runSearch(query: string) {
+      const token = ++searchToken
+      const q = query.trim()
+      if (q.length === 0) {
+        paintHint()
+        return
+      }
+      const api = await loadPagefind()
+      if (token !== searchToken) return
+      if (!api) {
+        paint(staticSearch(q), q)
+        return
+      }
+      try {
+        const response = await api.search(q)
+        if (token !== searchToken) return
+        const datas = await Promise.all(
+          response.results.slice(0, 8).map((result) => result.data()),
+        )
+        if (token !== searchToken) return
+        paint(
+          datas.map((data) => ({
+            title: data.meta.title || data.url,
+            desc: sanitizeExcerpt(data.excerpt),
+            descHtml: true,
+            href: data.url,
+          })),
+          q,
+        )
+      } catch {
+        paint(staticSearch(q), q)
+      }
+    }
+
+    function open() {
+      ov.dataset.open = "true"
+      paintHint()
+      // Warm the Pagefind index while the user types the first query.
+      void loadPagefind()
+        .then((api) => api?.preload(inp.value))
+        .catch(() => {})
+      const target: HTMLInputElement = inp
+      setTimeout(() => target.focus(), 0)
+    }
+
+    function close() {
+      ov.dataset.open = "false"
+      inp.value = ""
+    }
+
+    function isOpen() {
+      return ov.dataset.open === "true"
+    }
+
+    document.addEventListener("open-command-palette", open)
+
+    document.addEventListener("keydown", (e) => {
+      const target = e.target as HTMLElement | null
+      const typing =
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault()
+        if (isOpen()) close()
+        else open()
+        return
+      }
+      if (e.key === "/" && !isOpen() && !typing) {
+        e.preventDefault()
+        open()
+        return
+      }
+      if (e.key === "Escape" && isOpen()) {
+        e.preventDefault()
+        close()
+        return
+      }
+      if (!isOpen()) return
+      if (e.key === "ArrowDown") {
+        e.preventDefault()
+        active = (active + 1) % Math.max(current.length, 1)
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault()
+        active =
+          (active - 1 + Math.max(current.length, 1)) %
+          Math.max(current.length, 1)
+      } else if (e.key === "Enter") {
+        e.preventDefault()
+        // Click the rendered link so the View Transitions router
+        // handles same-origin navigation instead of a full reload.
+        const link = res.querySelector<HTMLAnchorElement>(
+          `.cmd-item[data-index="${active}"]`,
+        )
+        if (link) link.click()
+        else {
+          const entry = current[active]
+          if (entry) window.location.href = entry.href
+        }
+        return
+      } else {
+        return
+      }
+      syncActive()
+    })
+
+    let debounce: ReturnType<typeof setTimeout> | undefined
+    inp.addEventListener("input", () => {
+      clearTimeout(debounce)
+      const value = inp.value
+      debounce = setTimeout(() => void runSearch(value), 150)
+    })
+
+    ov.addEventListener("click", (e) => {
+      if (e.target === ov) close()
+    })
+
+    paintHint()
+  }
+
+  document.addEventListener("astro:page-load", initPalette)
+  document.addEventListener("astro:after-swap", initPalette)
+  initPalette()
+</script>
