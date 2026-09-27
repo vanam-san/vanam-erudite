@@ -1,12 +1,84 @@
 ---
 import MetaPage from "@/components/MetaPage.astro"
+import ScrollToTop from "@/components/ScrollToTop.astro"
 import Layout from "@/layouts/Layout.astro"
 ---
 
-<Layout crumbs={[{ label: "404", href: "/404" }]}>
+<Layout noindex>
   <MetaPage slot="head" title="404" />
-  <prose-content>
-    <h1>404</h1>
-    <p>This page does not exist.</p>
-  </prose-content>
+  <ScrollToTop floating />
+
+  <div class="bento">
+    <section
+      class="bento-tile bento-intro bento-error"
+      aria-label="Page not found"
+    >
+      <p class="bento-kicker">Error</p>
+      <h1 class="bento-error-code">404</h1>
+      <p class="bento-tagline">This page wandered off the circuit.</p>
+      <p class="bento-bio">
+        The link may be broken, or the page never existed. Head back home or
+        search the site instead.
+      </p>
+      <span class="bento-note" data-tail="up" style="--tail-x: 22%">
+        Press <kbd>⌘K</kbd> to search every page.
+      </span>
+      <a href="/" class="bento-action circle-action">
+        <span class="sr-only">Back to home</span>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M7 17 17 7"></path>
+          <path d="M8 7h9v9"></path>
+        </svg>
+      </a>
+    </section>
+  </div>
 </Layout>
+
+<script>
+  function openPalette() {
+    document.dispatchEvent(new CustomEvent("open-command-palette"))
+  }
+
+  function initMissing() {
+    const note = document.querySelector<HTMLElement>(".bento-error .bento-note")
+    if (!note || note.dataset.bound) return
+    note.dataset.bound = "true"
+    note.addEventListener("click", openPalette)
+  }
+
+  document.addEventListener("astro:page-load", initMissing)
+  document.addEventListener("astro:after-swap", initMissing)
+  initMissing()
+</script>
+
+<style>
+  .bento-error {
+    grid-column: 1 / -1;
+    padding-block: var(--space-l);
+  }
+
+  .bento-error-code {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 18cqw, 6rem);
+    font-weight: var(--font-weight-medium);
+    line-height: 1;
+    letter-spacing: normal;
+  }
+
+  .bento-error .bento-note {
+    cursor: pointer;
+  }
+
+  .bento-error kbd {
+    font-family: var(--font-mono);
+    font-size: inherit;
+  }
+</style>

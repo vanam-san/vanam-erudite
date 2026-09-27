@@ -1,12 +1,15 @@
 ---
 import type { SvgComponent } from "astro/types"
 
-type Props = { links: { href: string; label: string; icon: SvgComponent }[] }
+type Props = {
+  links: { href: string; label: string; icon: SvgComponent }[]
+  class?: string
+}
 
-const { links } = Astro.props
+const { links, class: className } = Astro.props
 ---
 
-<ul>
+<ul class:list={[className]}>
   {links.map(({ href, label, icon: Icon }) => (
       <li>
         <a

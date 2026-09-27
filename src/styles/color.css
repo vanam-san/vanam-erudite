@@ -46,6 +46,19 @@
   --border:             var(--gray-5);
   --ring:               var(--cyan-7);
 
+  /* Structural surface scale (vanam.dev bento notes) */
+  --background-l4: var(--gray-5);
+
+  /* Glassmorphism (vanam.dev mobile bar) — derived from theme tokens */
+  --glass-bg: light-dark(
+    color-mix(in oklab, var(--background) 55%, transparent),
+    color-mix(in oklab, var(--background) 38%, transparent)
+  );
+  --glass-filter: blur(24px) saturate(180%);
+  --glass-hairline: color-mix(in oklab, var(--foreground) 26%, transparent);
+  --glass-highlight: inset 0 1px 0 0
+    color-mix(in oklab, var(--foreground) 20%, transparent);
+
   /* Glow effects */
   --glow-primary: 0 0 20px color-mix(in oklab, var(--cyan-9) 25%, transparent);
   --glow-secondary: 0 0 20px color-mix(in oklab, var(--lume-9) 20%, transparent);

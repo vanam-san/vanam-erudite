@@ -2,9 +2,16 @@
   @media (width < 64rem) {
     padding-block: var(--space-2xs);
     padding-inline: var(--bar-gutter);
-    background-color: color-mix(in oklab, var(--background) 92%, transparent);
+    background-color: var(--glass-bg, color-mix(in oklab, var(--background) 92%, transparent));
     backdrop-filter: blur(var(--blur-sm));
-    border-block-end: 1px solid var(--border);
+    border-block-end: 1px solid var(--glass-hairline, var(--border));
     border-image: var(--bar-border-image);
+    box-shadow: var(--glass-highlight, none);
+  }
+
+  @supports (backdrop-filter: blur(24px)) {
+    @media (width < 64rem) {
+      backdrop-filter: var(--glass-filter, blur(var(--blur-sm)));
+    }
   }
 }

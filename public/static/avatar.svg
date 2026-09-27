@@ -1,0 +1,7 @@
+<!-- Template placeholder avatar. Replace this file with your own photo
+     (square, ~500px) to personalize the homepage who-tile. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" role="img" aria-label="Profile photo placeholder">
+  <rect width="96" height="96" rx="48" fill="#8a8a8a" opacity="0.25"/>
+  <circle cx="48" cy="36" r="14" fill="#8a8a8a" opacity="0.55"/>
+  <path d="M20 78c4-14 15-21 28-21s24 7 28 21" fill="none" stroke="#8a8a8a" stroke-width="7" stroke-linecap="round" opacity="0.55"/>
+</svg>

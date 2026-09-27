@@ -17,21 +17,34 @@ import "@/styles/shape.css"
 import "@/styles/gallery.css"
 import "@/styles/bento.css"
 
+import CircuitBackdrop from "@/components/CircuitBackdrop.astro"
+import CommandPalette from "@/components/CommandPalette.astro"
 import Footer from "@/components/Footer.astro"
+import KeyboardShortcuts from "@/components/KeyboardShortcuts.astro"
 import MetaHead from "@/components/MetaHead.astro"
 import Sidebar from "@/components/Sidebar.astro"
 import { SITE } from "@/consts"
 
-type Props = { crumbs?: { label: string; href: string }[] }
+type Props = {
+  crumbs?: { label: string; href: string }[]
+  wide?: boolean
+  /** Exclude this page from the Pagefind search index (e.g. 404). */
+  noindex?: boolean
+}
 
-const { crumbs } = Astro.props
+const { crumbs, wide = false, noindex = false } = Astro.props
 ---
 
 <html lang={SITE.locale} dir={SITE.dir}>
   <MetaHead>
     <slot name="head" />
   </MetaHead>
-  <body>
+  <body data-pagefind-ignore={noindex || undefined}>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <div class="bg-noise" aria-hidden="true"></div>
+    <div class="bg-orbs" aria-hidden="true"></div>
+    <CircuitBackdrop />
+    <CommandPalette />
     <page-grid>
       <page-header>
         <page-nav>
@@ -43,15 +56,76 @@ const { crumbs } = Astro.props
             <page-toc><slot name="toc" /></page-toc>
           )}
       </page-header>
-      <page-content>
-        <main><slot /></main>
+      <page-content class:list={[wide && "wide"]}>
+        <main id="main" data-pagefind-body><slot /></main>
         <page-footer><Footer /></page-footer>
       </page-content>
     </page-grid>
+    <KeyboardShortcuts />
   </body>
 </html>
 
 <style>
+  .skip-link {
+    position: fixed;
+    inset-block-start: var(--space-xs);
+    inset-inline-start: var(--space-xs);
+    z-index: 10001;
+    padding: var(--space-2xs) var(--space-xs);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--primary-foreground, var(--background));
+    text-decoration: none;
+    background: var(--primary);
+    border-radius: var(--radius-md);
+    transform: translateY(-300%);
+    transition: transform 0.15s ease-out;
+  }
+
+  .skip-link:focus-visible {
+    transform: translateY(0);
+  }
+
+  /* Paper grain for depth — whisper-quiet texture */
+  .bg-noise {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+
+    @media (width < 64rem) {
+      display: none;
+    }
+  }
+
+  /* Warm paper wash: static, theme-aware, no motion */
+  .bg-orbs {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        42rem 30rem at 12% -6%,
+        color-mix(in oklab, var(--primary) 10%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        38rem 28rem at 88% 8%,
+        color-mix(in oklab, var(--secondary) 9%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        46rem 34rem at 50% 108%,
+        color-mix(in oklab, var(--secondary) 7%, transparent),
+        transparent 70%
+      );
+  }
+
   page-grid {
     position: relative;
     isolation: isolate;
@@ -136,6 +210,12 @@ const { crumbs } = Astro.props
       inline-size: 100%;
       max-inline-size: var(--measure);
       margin-inline: auto;
+    }
+  }
+
+  @media screen and (width >= 64rem) {
+    page-content.wide {
+      grid-column: 3 / 13;
     }
   }
 </style>

@@ -1,5 +1,6 @@
 :root {
   /* Anthropic-style typography scale */
+  --step--3: clamp(0.6875rem, 0.67rem + 0.08vw, 0.75rem);
   --step--2: clamp(0.75rem, 0.73rem + 0.08vw, 0.8125rem);
   --step--1: clamp(0.875rem, 0.84rem + 0.15vw, 1rem);
   --step-0: clamp(1rem, 0.96rem + 0.18vw, 1.125rem);
@@ -12,6 +13,7 @@
 
   --tracking-tight: -0.02em;
   --tracking-tighter: -0.03em;
+  --tracking-wide: 0.05em;
   --leading-offset: 0.5rem;
 
   --prose-foreground: color-mix(in oklab, var(--foreground) 75%, transparent);
