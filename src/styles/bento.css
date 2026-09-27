@@ -1,3 +1,493 @@
+/* ═══ vanam.dev editorial bento grid ═══
+   Grid areas: who / intro / latest / writing / projects / photo / weather.
+   Theme tokens (colors, radii, fonts) are preserved from this site. */
+
+.bento {
+  display: grid;
+  gap: var(--space-xs);
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "who"
+    "intro"
+    "latest"
+    "writing"
+    "projects"
+    "photo"
+    "weather";
+  container-type: inline-size;
+  margin-block-end: var(--space-xl);
+}
+
+@media (width >= 30rem) {
+  .bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "who intro"
+      "latest latest"
+      "writing projects"
+      "photo photo"
+      "weather weather";
+  }
+}
+
+.bento-who { grid-area: who; }
+.bento-intro { grid-area: intro; }
+.bento-latest { grid-area: latest; }
+.bento-writing { grid-area: writing; }
+.bento-projects { grid-area: projects; }
+.bento-photo { grid-area: photo; }
+.bento-weather { grid-area: weather; }
+
+/* ── Tile ─────────────────────────────────────────────── */
+.bento-tile {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+  gap: var(--space-s);
+  padding: clamp(1rem, 6cqw, 1.75rem);
+  padding-block-end: calc(clamp(1rem, 6cqw, 1.75rem) + 0.5rem);
+  background: var(--background);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  container-type: inline-size;
+  transition: box-shadow 0.2s ease;
+}
+
+@media (width >= 30rem) {
+  .bento-tile {
+    overflow: auto;
+    scrollbar-width: none;
+  }
+  .bento-tile::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.bento-tile:hover,
+.bento-tile:focus-within {
+  border-color: var(--border);
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.bento-tile img {
+  filter: grayscale() sepia(0.3);
+}
+
+/* ── Circle action button ─────────────────────────────── */
+.bento-action {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-end: 0;
+  margin: var(--space-2xs);
+}
+
+/* ── Floating note (speech-bubble tooltip) ────────────── */
+.bento-note {
+  display: block;
+  position: relative;
+  padding: calc(var(--space-3xs) / 2) var(--space-2xs);
+  background-color: var(--background);
+  border: 2px solid var(--background-l4);
+  color: var(--prose-foreground);
+  font-size: var(--step--2);
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+.bento-note::after {
+  content: "";
+  position: absolute;
+  block-size: 0.625rem;
+  inline-size: 0.625rem;
+  rotate: 45deg;
+  background-color: var(--background);
+  border: 2px solid var(--background-l4);
+}
+
+.bento-note[data-tail="up"]::after {
+  inset-block-start: calc(-0.3125rem - 1.5px);
+  inset-inline-start: var(--tail-x, 50%);
+  translate: -50% 0;
+  border-block-end: none;
+  border-inline-end: none;
+}
+
+.bento-note[data-tail="down"]::after {
+  inset-block-end: calc(-0.3125rem - 1.5px);
+  inset-inline-start: var(--tail-x, 50%);
+  translate: -50% 0;
+  border-block-start: none;
+  border-inline-start: none;
+}
+
+.bento-note a {
+  color: var(--foreground);
+}
+
+.bento-intro .bento-note,
+.bento-latest .bento-note {
+  position: absolute;
+  z-index: 3;
+  width: max-content;
+  max-inline-size: min(13rem, 80%);
+  box-shadow: 3px 3px 0 color-mix(in oklab, var(--border) 80%, transparent);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(6px) rotate(-1.5deg);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease,
+    visibility 0.18s;
+}
+
+.bento-intro .bento-note {
+  inset-block-end: 3.25rem;
+  inset-inline-start: 1rem;
+}
+
+.bento-latest .bento-note {
+  inset-block-start: 50%;
+  inset-inline-end: 3.25rem;
+  transform: translateY(calc(6px - 50%)) rotate(1.5deg);
+}
+
+/* Keyboard focus reveals the note on all devices */
+.bento-intro:focus-within .bento-note {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0) rotate(-1.5deg);
+}
+
+.bento-latest:focus-within .bento-note {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(-50%) rotate(1.5deg);
+}
+
+/* Hover reveal only where hover exists (prevents stuck notes on touch) */
+@media (hover: hover) {
+  .bento-intro:hover .bento-note {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0) rotate(-1.5deg);
+  }
+
+  .bento-latest:hover .bento-note {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(-50%) rotate(1.5deg);
+  }
+}
+
+@media (hover: none) {
+  .bento-intro .bento-note,
+  .bento-latest .bento-note {
+    position: relative;
+    inset: auto;
+    width: auto;
+    max-inline-size: none;
+    transform: none;
+    box-shadow: none;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
+
+/* ── Tile headers / lists ─────────────────────────────── */
+.bento-tile-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+
+.bento-tile-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 6cqw, 1.4rem);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: normal;
+  line-height: 1.15;
+}
+
+.bento-kicker {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.bento-list {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bento-list-item {
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+}
+
+.bento-list-item:last-child {
+  border-bottom: none;
+}
+
+.bento-list-link {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2xs);
+  padding: var(--space-2xs) 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.bento-list-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: var(--step--1);
+  font-weight: var(--font-weight-medium);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bento-list-link:hover .bento-list-title {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.bento-list-prefix {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  color: var(--muted-foreground);
+}
+
+.bento-list-link:hover .bento-list-prefix {
+  color: var(--primary);
+}
+
+.bento-list-meta {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+/* Writing tile: keep titles calm, spotlight the action button instead */
+.bento-writing .bento-list-link:hover .bento-list-title {
+  color: inherit;
+  text-decoration: none;
+}
+
+.bento-writing .bento-list-link:hover .bento-list-prefix {
+  color: var(--muted-foreground);
+}
+
+.bento-writing:hover .bento-action {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.bento-writing:hover .bento-action svg {
+  transform: rotate(12deg);
+}
+
+/* ── Who tile ─────────────────────────────────────────── */
+.bento-who {
+  flex-direction: row;
+  align-items: center;
+  gap: clamp(0.875rem, 4cqw, 1.25rem);
+}
+
+.bento-avatar {
+  flex-shrink: 0;
+  aspect-ratio: 1;
+  width: clamp(4rem, 22cqw, 6rem);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  transition: filter 0.3s ease;
+}
+
+.bento-who:hover .bento-avatar,
+.bento-who:focus-within .bento-avatar {
+  filter: none;
+}
+
+.bento-who-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-3xs);
+  min-width: 0;
+}
+
+.bento-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 8cqw, 2.5rem);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: normal;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.bento-name em {
+  color: var(--primary);
+  font-style: italic;
+}
+
+.bento-who .bento-name {
+  font-size: clamp(1.25rem, 7cqw, 1.75rem);
+}
+
+.bento-role {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+/* ── Intro tile ───────────────────────────────────────── */
+.bento-intro {
+  padding-inline-end: calc(clamp(1rem, 6cqw, 1.75rem) + 2.5rem);
+}
+
+.bento-intro .bento-note {
+  align-self: flex-start;
+}
+
+.bento-tagline {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(0.95rem, 4.5cqw, 1.15rem);
+  line-height: 1.4;
+  color: var(--prose-foreground);
+  text-wrap: pretty;
+}
+
+.bento-bio {
+  margin: 0;
+  font-size: var(--step--1);
+  line-height: 1.55;
+  color: var(--muted-foreground);
+}
+
+/* ── Latest-post banner ───────────────────────────────── */
+.bento-latest {
+  flex-flow: row wrap;
+  align-items: center;
+  gap: var(--space-2xs) var(--space-s);
+  padding-block: var(--space-s);
+  padding-inline-end: calc(clamp(1rem, 6cqw, 1.75rem) + 2.75rem);
+}
+
+.bento-latest .bento-kicker {
+  white-space: nowrap;
+}
+
+.bento-latest .bento-tile-title {
+  flex: 1;
+  min-width: 12rem;
+  overflow: hidden;
+  font-size: clamp(1rem, 4cqw, 1.2rem);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bento-latest-body {
+  flex-shrink: 0;
+  position: static;
+  margin: 0;
+}
+
+/* ── Photo tile: two-column list on wide tiles ────────── */
+@media (width >= 48rem) {
+  .bento-photo .bento-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-l);
+  }
+}
+
+/* ── Weather tile ─────────────────────────────────────── */
+.bento-weather-emoji {
+  font-size: var(--step-0);
+  line-height: 1;
+}
+
+.bento-weather-temp {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--primary);
+}
+
+.bento-weather-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  margin-bottom: var(--space-m);
+}
+
+.bento-weather-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-m);
+}
+
+.bento-weather-item {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  white-space: nowrap;
+}
+
+.bento-weather-label {
+  margin-inline-end: 0.35em;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.bento-weather-value {
+  font-variant-numeric: tabular-nums;
+  color: var(--foreground);
+}
+
+@media (width < 40rem) {
+  .bento-list-link {
+    gap: var(--space-xs);
+  }
+
+  .bento-list-meta {
+    max-inline-size: 32vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* ── Legacy bento-card (playground compat) ────────────── */
 .bento-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -21,12 +511,6 @@
     transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.bento-card:nth-child(1) { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.00s backwards; }
-.bento-card:nth-child(2) { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.06s backwards; }
-.bento-card:nth-child(3) { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.12s backwards; }
-.bento-card:nth-child(4) { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.18s backwards; }
-.bento-card:nth-child(5) { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.24s backwards; }
-
 a.bento-card:hover {
   border-color: color-mix(in oklab, var(--primary) 50%, var(--border));
   background-color: color-mix(in oklab, var(--muted) 55%, transparent);
@@ -44,347 +528,9 @@ a.bento-card:hover {
   grid-row: span 2;
 }
 
-.bento-label {
-  font-size: var(--step--2);
-  font-weight: var(--font-weight-medium);
-  color: var(--muted-foreground);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-block-end: var(--space-xs);
-}
-
-.bento-title {
-  font-size: var(--step-0);
-  font-weight: var(--font-weight-medium);
-  line-height: calc(var(--leading-offset) + 1em);
-}
-
-.bento-description {
-  font-size: var(--step--1);
-  color: var(--muted-foreground);
-}
-
-.bento-meta {
-  font-size: var(--step--2);
-  color: color-mix(in oklab, var(--muted-foreground) 70%, transparent);
-}
-
-.bento-link {
-  font-size: var(--step--1);
-  color: var(--secondary);
-  margin-block-start: auto;
-  transition: color 0.2s ease;
-}
-
-a:hover > .bento-link {
-  color: color-mix(in oklab, var(--primary) 80%, var(--foreground));
-}
-
-/* Hero Card */
-.bento-hero {
-  align-items: flex-start;
-  text-align: left;
-  gap: var(--space-2xs);
-}
-
-.bento-hero-name {
-  font-family: var(--font-display);
-  font-size: var(--step-2);
-  font-weight: 700;
-  font-optical-sizing: auto;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-  margin: 0;
-}
-
-.bento-hero-subtitle {
-  font-size: var(--step--1);
-  color: var(--secondary);
-  font-weight: var(--font-weight-medium);
-  letter-spacing: 0.02em;
-  margin: 0;
-  text-shadow: 0 0 12px color-mix(in oklab, var(--secondary) 30%, transparent);
-}
-
-.bento-hero-bio {
-  font-size: var(--step--1);
-  color: var(--muted-foreground);
-  max-inline-size: 40rem;
-  margin: 0;
-  line-height: 1.65;
-}
-
-/* Posts Card */
-.bento-posts {
-  gap: 0;
-  transition:
-    border-color 0.2s ease,
-    background-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
-
-  &:hover {
-    border-color: color-mix(in oklab, var(--primary) 40%, var(--border));
-    background-color: color-mix(in oklab, var(--muted) 60%, transparent);
-    box-shadow: var(--glow-subtle), 0 2px 16px color-mix(in oklab, var(--primary) 6%, transparent);
-    transform: translateY(-1px);
-  }
-}
-
-.bento-post-list {
-  display: flex;
-  flex-direction: column;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.bento-post {
-  padding-block: var(--space-2xs);
-  padding-inline-start: var(--space-xs);
-  border-bottom: 1px solid color-mix(in oklab, var(--border) 55%, transparent);
-  position: relative;
-
-  &::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: var(--space-2xs);
-    bottom: var(--space-2xs);
-    width: 2px;
-    background: var(--primary);
-    border-radius: 1px;
-    opacity: 0;
-    transform: scaleY(0);
-    transition:
-      opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  &:hover::before {
-    opacity: 1;
-    transform: scaleY(1);
-  }
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  a {
-    font-size: var(--step--1);
-    font-weight: var(--font-weight-medium);
-    line-height: calc(var(--leading-offset) + 1em);
-    color: inherit;
-  }
-}
-
-/* Gallery Card */
-.bento-gallery {
-  padding: 0;
-  overflow: hidden;
-  position: relative;
-  min-height: 280px;
-}
-
-.bento-gallery-slideshow {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-}
-
-.bento-gallery-slide {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 0.8s ease-in-out;
-}
-
-.bento-gallery-slide.active {
-  opacity: 1;
-}
-
-.bento-gallery:hover .bento-gallery-slide.active {
-  transform: scale(1.05);
-}
-
-.bento-gallery-text {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3xs);
-  padding: var(--space-m);
-  background: linear-gradient(to top, color-mix(in oklab, var(--background) 90%, transparent), transparent);
-}
-
-.bento-gallery-title {
-  font-size: var(--step-1);
-  font-weight: var(--font-weight-medium);
-  color: var(--foreground);
-}
-
-.bento-gallery-count {
-  font-size: var(--step--2);
-  color: var(--muted-foreground);
-}
-
-/* Projects Card */
-.bento-projects {
-  gap: 0;
-  transition:
-    border-color 0.2s ease,
-    background-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
-
-  &:hover {
-    border-color: color-mix(in oklab, var(--primary) 40%, var(--border));
-    background-color: color-mix(in oklab, var(--muted) 60%, transparent);
-    box-shadow: var(--glow-subtle), 0 2px 16px color-mix(in oklab, var(--primary) 6%, transparent);
-    transform: translateY(-1px);
-  }
-}
-
-.bento-project-list {
-  display: flex;
-  flex-direction: column;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.bento-project {
-  display: flex;
-  align-items: center;
-  gap: var(--space-s);
-  padding-block: var(--space-2xs);
-  padding-inline-start: var(--space-xs);
-  border-bottom: 1px solid color-mix(in oklab, var(--border) 55%, transparent);
-  position: relative;
-
-  &::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: var(--space-2xs);
-    bottom: var(--space-2xs);
-    width: 2px;
-    background: var(--primary);
-    border-radius: 1px;
-    opacity: 0;
-    transform: scaleY(0);
-    transition:
-      opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  &:hover::before {
-    opacity: 1;
-    transform: scaleY(1);
-  }
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  > a {
-    flex-shrink: 0;
-    font-size: var(--step--1);
-    font-weight: var(--font-weight-medium);
-    line-height: calc(var(--leading-offset) + 1em);
-    color: inherit;
-  }
-}
-
-.bento-project-tags {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  gap: var(--space-xs);
-  overflow: hidden;
-  mask-image: linear-gradient(to right, black 70%, transparent);
-  -webkit-mask-image: linear-gradient(to right, black 70%, transparent);
-}
-
-.bento-project-tag {
-  flex-shrink: 0;
-  font-size: var(--step--2);
-  font-family: var(--font-mono);
-  color: var(--muted-foreground);
-  white-space: nowrap;
-}
-
-/* Time/Weather Card */
-.bento-time {
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--space-m);
-  max-height: 180px;
-  overflow: hidden;
-}
-
-.bento-time-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3xs);
-}
-
-.bento-time-label {
-  font-size: var(--step--2);
-  font-weight: var(--font-weight-medium);
-  color: var(--muted-foreground);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.bento-time-value {
-  font-size: var(--step-1);
-  font-weight: var(--font-weight-medium);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: var(--tracking-tight);
-}
-
-.bento-time-date {
-  font-size: var(--step--1);
-  color: var(--muted-foreground);
-}
-
-.bento-weather-value {
-  font-size: var(--step-1);
-  font-weight: var(--font-weight-medium);
-}
-
-.bento-weather-desc {
-  font-size: var(--step--1);
-  color: var(--muted-foreground);
-}
-
-.bento-timezone-name {
-  font-size: var(--step--1);
-  font-weight: var(--font-weight-medium);
-}
-
-.bento-timezone-offset {
-  font-size: var(--step--2);
-  color: var(--muted-foreground);
-}
-
 @media (width < 40rem) {
   .bento-grid {
     grid-template-columns: 1fr;
-    grid-auto-rows: minmax(180px, auto);
-  }
-
-  .bento-gallery {
-    grid-row: span 2;
   }
 
   .bento-card[data-span="2"] {
@@ -395,7 +541,6 @@ a:hover > .bento-link {
     grid-row: span 1;
   }
 
-  /* Playground keeps a 2-column grid on mobile so large cards stay 2x2 */
   .bento-grid-playground {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -407,10 +552,13 @@ a:hover > .bento-link {
   .bento-grid-playground .bento-card[data-row-span="2"] {
     grid-row: span 2;
   }
+}
 
-  .bento-time {
-    flex-direction: column;
-    gap: calc(var(--space-m) / 2);
-    max-height: none;
+@media (prefers-reduced-motion: reduce) {
+  .bento-tile,
+  .bento-list-link,
+  .bento-note,
+  .bento-avatar {
+    transition: none;
   }
 }
