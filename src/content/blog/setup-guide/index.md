@@ -16,8 +16,8 @@ This guide walks you through setting up and customizing this Astro theme for you
 ## Installation
 
 ```bash
-git clone https://github.com/vanam-san/vanam-erudite2.git
-cd vanam-erudite2
+git clone https://github.com/vanam-san/vanam-erudite.git
+cd vanam-erudite
 bun install
 ```
 

@@ -10,8 +10,8 @@ A personal portfolio and blog built with [Astro](https://astro.build/), based on
 ## Quick Start
 
 ```bash
-git clone https://github.com/vanam-san/vanam-erudite2.git
-cd vanam-erudite2
+git clone https://github.com/vanam-san/vanam-erudite.git
+cd vanam-erudite
 bun install
 bun run dev
 ```
