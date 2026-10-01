@@ -47,12 +47,12 @@ Configuration lives in `consts.ts`:
 
 ```ts
 export const UMAMI = {
-  websiteId: import.meta.env.PUBLIC_UMAMI_WEBSITE_ID || "",
-  host: import.meta.env.PUBLIC_UMAMI_HOST || "cloud.umami.is",
+  websiteId: import.meta.env.UMAMI_WEBSITE_ID || "",
+  host: import.meta.env.UMAMI_HOST || "cloud.umami.is",
 }
 ```
 
-The tracking script is injected conditionally in `MetaHead.astro` — it only loads if `PUBLIC_UMAMI_WEBSITE_ID` is set:
+The tracking script is injected conditionally in `MetaHead.astro` — it only loads if `UMAMI_WEBSITE_ID` is set:
 
 ```astro
 {UMAMI.websiteId && (

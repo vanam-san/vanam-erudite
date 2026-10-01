@@ -146,8 +146,8 @@ socials:
 
 Copy `.env.example` to `.env` and fill in (all optional — the site works without them):
 
-- `PUBLIC_UMAMI_WEBSITE_ID` (+ `PUBLIC_UMAMI_HOST`, defaults to `cloud.umami.is`) — Umami analytics
-- `PUBLIC_GISCUS_REPO`, `PUBLIC_GISCUS_REPO_ID`, `PUBLIC_GISCUS_CATEGORY`, `PUBLIC_GISCUS_CATEGORY_ID` — Giscus comments (values from [giscus.app](https://giscus.app))
+- `UMAMI_WEBSITE_ID` (+ `UMAMI_HOST`, defaults to `cloud.umami.is`) — Umami analytics
+- `GISCUS_REPO`, `GISCUS_REPO_ID`, `GISCUS_CATEGORY`, `GISCUS_CATEGORY_ID` — Giscus comments (values from [giscus.app](https://giscus.app))
 
 ## Deployment
 

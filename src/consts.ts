@@ -35,13 +35,13 @@ export const SOCIALS: { href: string; label: string; icon: SvgComponent }[] = [
 ]
 
 export const UMAMI = {
-  websiteId: import.meta.env.PUBLIC_UMAMI_WEBSITE_ID || "",
-  host: import.meta.env.PUBLIC_UMAMI_HOST || "cloud.umami.is",
+  websiteId: import.meta.env.UMAMI_WEBSITE_ID || "",
+  host: import.meta.env.UMAMI_HOST || "cloud.umami.is",
 }
 
 export const GISCUS = {
-  repo: import.meta.env.PUBLIC_GISCUS_REPO || "",
-  repoId: import.meta.env.PUBLIC_GISCUS_REPO_ID || "",
-  category: import.meta.env.PUBLIC_GISCUS_CATEGORY || "Comments",
-  categoryId: import.meta.env.PUBLIC_GISCUS_CATEGORY_ID || "",
+  repo: import.meta.env.GISCUS_REPO || "",
+  repoId: import.meta.env.GISCUS_REPO_ID || "",
+  category: import.meta.env.GISCUS_CATEGORY || "Comments",
+  categoryId: import.meta.env.GISCUS_CATEGORY_ID || "",
 }

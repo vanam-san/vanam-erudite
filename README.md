@@ -144,12 +144,12 @@ The 3 most recent (by `startDate`) appear on the homepage projects tile.
 All optional; copy from `.env.example`. The site works fully without them:
 
 ```env
-PUBLIC_UMAMI_WEBSITE_ID=
-PUBLIC_UMAMI_HOST=cloud.umami.is
-PUBLIC_GISCUS_REPO=
-PUBLIC_GISCUS_REPO_ID=
-PUBLIC_GISCUS_CATEGORY=Comments
-PUBLIC_GISCUS_CATEGORY_ID=
+UMAMI_WEBSITE_ID=
+UMAMI_HOST=cloud.umami.is
+GISCUS_REPO=
+GISCUS_REPO_ID=
+GISCUS_CATEGORY=Comments
+GISCUS_CATEGORY_ID=
 ```
 
 - **Umami** — cookieless analytics; script only loads when the website ID is set.
