@@ -4,7 +4,6 @@ import { GISCUS } from "@/consts"
 
 <div
   id="giscus-container"
-  class="mt-8"
   data-repo={GISCUS.repo}
   data-repo-id={GISCUS.repoId}
   data-category={GISCUS.category}
@@ -12,6 +11,12 @@ import { GISCUS } from "@/consts"
 >
   <div id="giscus-comments"></div>
 </div>
+
+<style>
+  #giscus-container {
+    margin-block-start: var(--space-xl);
+  }
+</style>
 
 <script>
   function loadGiscus() {
