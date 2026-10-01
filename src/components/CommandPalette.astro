@@ -2,17 +2,18 @@
 import { getCollection } from "astro:content"
 import { NAVIGATION } from "@/consts"
 
-type IndexEntry = { title: string; desc: string; href: string }
+type ResultKind = 'page' | 'blog' | 'gallery' | 'project'
+type IndexEntry = { title: string; kind: ResultKind; href: string }
 
 const staticEntries: IndexEntry[] = [
-  { title: "Home", desc: "page", href: "/" },
+  { title: "Home", kind: "page", href: "/" },
   ...NAVIGATION.map((item) => ({
     title: item.label,
-    desc: "page",
+    kind: "page" as const,
     href: item.href,
   })),
-  { title: "Tags", desc: "page", href: "/tags" },
-  { title: "Legal", desc: "page", href: "/legal" },
+  { title: "Tags", kind: "page", href: "/tags" },
+  { title: "Legal", kind: "page", href: "/legal" },
 ]
 
 const posts = await getCollection("blog", ({ data }) => !data.draft)
@@ -23,17 +24,17 @@ const entries: IndexEntry[] = [
   ...staticEntries,
   ...posts.map((post) => ({
     title: post.data.title,
-    desc: `blog · ${(post.data.tags ?? []).join(", ")}`,
+    kind: "blog" as const,
     href: `/blog/${post.id}`,
   })),
   ...galleries.map((gallery) => ({
     title: gallery.data.title,
-    desc: "gallery",
+    kind: "gallery" as const,
     href: `/gallery/${gallery.id}`,
   })),
   ...projects.map((project) => ({
     title: project.data.name,
-    desc: "project",
+    kind: "project" as const,
     href: project.data.link ?? "/projects",
   })),
 ]
@@ -236,13 +237,25 @@ const indexJson = JSON.stringify(entries)
     white-space: nowrap;
   }
 
-  .cmd-item-desc {
-    overflow: hidden;
+  .cmd-group {
+    padding: var(--space-xs) var(--space-xs) var(--space-3xs);
     font-family: var(--font-mono);
     font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
     color: var(--muted-foreground);
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  }
+
+  .cmd-group:not(:first-child) {
+    margin-top: var(--space-2xs);
+    padding-top: var(--space-xs);
+    border-top: 1px solid var(--border);
+  }
+
+  .cmd-highlight {
+    color: inherit;
+    background: color-mix(in oklab, var(--primary) 22%, transparent);
+    border-radius: 2px;
   }
 
   .cmd-item-arrow {
@@ -303,7 +316,11 @@ const indexJson = JSON.stringify(entries)
 </style>
 
 <script>
-  type IndexEntry = { title: string; desc: string; href: string }
+  type IndexEntry = {
+    title: string
+    kind: "page" | "blog" | "gallery" | "project"
+    href: string
+  }
 
   function readIndex(): IndexEntry[] {
     try {
@@ -328,87 +345,57 @@ const indexJson = JSON.stringify(entries)
     )
   }
 
-  type PagefindResultData = {
-    url: string
-    meta: { title?: string }
-    excerpt: string
-  }
-
-  type PagefindAPI = {
-    init: () => Promise<void>
-    preload: (term: string) => Promise<unknown>
-    search: (term: string) => Promise<{
-      results: { data: () => Promise<PagefindResultData> }[]
-    }>
-  }
-
-  // Lazy-load the generated Pagefind bundle. Absent in `astro dev`
-  // (index only exists in dist), so fall back to the static index.
-  let pagefindPromise: Promise<PagefindAPI | null> | null = null
-
-  function loadPagefind(): Promise<PagefindAPI | null> {
-    if (!pagefindPromise) {
-      const bundleUrl: string = "/pagefind/pagefind.js"
-      pagefindPromise = import(/* @vite-ignore */ bundleUrl)
-        .then(async (mod: unknown) => {
-          const api = mod as PagefindAPI
-          await api.init()
-          return api
-        })
-        .catch(() => null)
-    }
-    return pagefindPromise
-  }
-
-  // Pagefind excerpts are text with <mark> wrappers — escape everything
-  // except the marks.
-  function sanitizeExcerpt(excerpt: string): string {
-    return excerpt
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/&lt;(\/?mark)&gt;/g, "<$1>")
-  }
-
   function initPalette() {
     const overlay = document.getElementById("cmd-overlay")
     const input = document.getElementById(
       "cmd-input",
     ) as HTMLInputElement | null
     const results = document.getElementById("cmd-results")
-    if (!overlay || !input || !results || overlay.dataset.bound) return
+    if (!overlay || !input || !results) return
+    // A node always belongs to a single document, so if the overlay is
+    // already bound, its document-level listeners from the first init
+    // are still valid too — nothing to do. (Fresh overlay + already
+    // bound document happens with client-side navigation *without*
+    // transition persistence: element listeners must be attached to the
+    // new nodes while document listeners must not double up.)
+    if (overlay.dataset.bound) return
     overlay.dataset.bound = "true"
-
     const ov: HTMLElement = overlay
     const inp: HTMLInputElement = input
     const res: HTMLElement = results
+    const doc = document as Document & { __cmdPaletteDocBound?: boolean }
+    if (!doc.__cmdPaletteDocBound) {
+      doc.__cmdPaletteDocBound = true
+      document.addEventListener("open-command-palette", open)
+      document.addEventListener("keydown", onKeydown)
+    }
 
     const entries = readIndex()
 
-    type ResultItem = {
-      title: string
-      desc: string
-      descHtml: boolean
-      href: string
-    }
+    type ResultKind = "page" | "blog" | "gallery" | "project"
+    type ResultItem = { title: string; kind: ResultKind; href: string }
+
+    const GROUPS: { kind: ResultKind; label: string }[] = [
+      { kind: "blog", label: "Blog" },
+      { kind: "gallery", label: "Gallery" },
+      { kind: "project", label: "Projects" },
+      { kind: "page", label: "Pages" },
+    ]
+    const MAX_PER_GROUP = 5
 
     let active = 0
     let current: ResultItem[] = []
-    let searchToken = 0
 
     function toItem(e: IndexEntry): ResultItem {
-      return { title: e.title, desc: e.desc, descHtml: false, href: e.href }
+      return { title: e.title, kind: e.kind, href: e.href }
     }
 
     function staticSearch(query: string): ResultItem[] {
       const q = query.trim().toLowerCase()
       if (q.length === 0) return entries.slice(0, 8).map(toItem)
       return entries
-        .filter(
-          (e) =>
-            e.title.toLowerCase().includes(q) ||
-            e.desc.toLowerCase().includes(q),
-        )
-        .slice(0, 10)
+        .filter((e) => e.title.toLowerCase().includes(q))
+        .slice(0, 12)
         .map(toItem)
     }
 
@@ -434,71 +421,103 @@ const indexJson = JSON.stringify(entries)
     }
 
     function paint(items: ResultItem[], rawQuery: string) {
-      current = items
-      active = 0
-
-      if (items.length === 0) {
+      const q = rawQuery.trim()
+      const unique = dedupe(items)
+      if (unique.length === 0) {
+        current = []
+        active = 0
         res.innerHTML = `<li class="cmd-empty">No results for &ldquo;${rawQuery.replace(/</g, "&lt;")}&rdquo;</li>`
       } else {
-        res.innerHTML = items
-          .map(
-            (e, i) => `<li>
-              <a href="${e.href.replace(/"/g, "%22")}" class="cmd-item" id="cmd-item-${i}" role="option" aria-selected="${i === active}" data-active="${i === active}" data-index="${i}">
+        // Group matches by type, capped per group. Headers are not
+        // selectable — `current` holds only the rendered links in order.
+        const flat: ResultItem[] = []
+        let html = ""
+        for (const group of GROUPS) {
+          const groupItems = unique
+            .filter((item) => item.kind === group.kind)
+            .slice(0, MAX_PER_GROUP)
+          if (groupItems.length === 0) continue
+          html += `<li class="cmd-group" aria-hidden="true">${group.label}</li>`
+          for (const e of groupItems) {
+            const i = flat.length
+            flat.push(e)
+            html += `<li>
+              <a href="${e.href.replace(/"/g, "%22")}" class="cmd-item" id="cmd-item-${i}" role="option" aria-selected="${i === 0}" data-active="${i === 0}" data-index="${i}">
                 <span class="cmd-item-text">
-                  <span class="cmd-item-title">${highlight(e.title, rawQuery.trim())}</span>
-                  <span class="cmd-item-desc">${e.descHtml ? e.desc : e.desc.replace(/</g, "&lt;")}</span>
+                  <span class="cmd-item-title">${highlight(e.title, q)}</span>
                 </span>
                 <span class="cmd-item-arrow" aria-hidden="true">&rarr;</span>
               </a>
-            </li>`,
-          )
-          .join("")
+            </li>`
+          }
+        }
+        current = flat
+        active = 0
+        res.innerHTML = html
       }
-      inp.setAttribute("aria-expanded", items.length > 0 ? "true" : "false")
+      inp.setAttribute("aria-expanded", current.length > 0 ? "true" : "false")
       syncActive()
     }
 
-    async function runSearch(query: string) {
-      const token = ++searchToken
+    // Normalize hrefs so de-duplication compares like with like
+    // (trailing slashes, external URL forms). External URLs keep
+    // their origin so distinct sites never collide with local paths.
+    function normHref(href: string): string {
+      if (/^https?:\/\//i.test(href)) {
+        try {
+          const u = new URL(href)
+          const path =
+            u.pathname.length > 1 ? u.pathname.replace(/\/+$/, "") : ""
+          return (u.origin + path).toLowerCase()
+        } catch {
+          return href
+        }
+      }
+      return href.length > 1 ? href.replace(/\/+$/, "") : href
+    }
+
+    // Drop duplicate rows: same destination twice (e.g. two projects
+    // sharing one placeholder link), plus series chains — subpost rows
+    // live under their parent (`/blog/<post>/…`), so one query matching
+    // several chain titles still renders a single row per series.
+    // First (best) match per destination / series wins.
+    function dedupe(items: ResultItem[]): ResultItem[] {
+      const seenHref = new Set<string>()
+      const seenSeries = new Set<string>()
+      const out: ResultItem[] = []
+      for (const item of items) {
+        const href = normHref(item.href)
+        if (seenHref.has(href)) continue
+        if (item.kind === "blog") {
+          const parts = href.split("/").filter(Boolean)
+          if (parts.length > 1 && parts[0] === "blog") {
+            const bucket = `/${parts[0]}/${parts[1]}`
+            if (seenSeries.has(bucket)) continue
+            seenSeries.add(bucket)
+          }
+        }
+        seenHref.add(href)
+        out.push(item)
+      }
+      return out
+    }
+
+    // Title-only matching: a row shows if and only if its title
+    // contains the query. No content/excerpt matching, so pages that
+    // merely mention the term (blog index, author pages, home bio)
+    // never appear.
+    function runSearch(query: string) {
       const q = query.trim()
       if (q.length === 0) {
         paintHint()
         return
       }
-      const api = await loadPagefind()
-      if (token !== searchToken) return
-      if (!api) {
-        paint(staticSearch(q), q)
-        return
-      }
-      try {
-        const response = await api.search(q)
-        if (token !== searchToken) return
-        const datas = await Promise.all(
-          response.results.slice(0, 8).map((result) => result.data()),
-        )
-        if (token !== searchToken) return
-        paint(
-          datas.map((data) => ({
-            title: data.meta.title || data.url,
-            desc: sanitizeExcerpt(data.excerpt),
-            descHtml: true,
-            href: data.url,
-          })),
-          q,
-        )
-      } catch {
-        paint(staticSearch(q), q)
-      }
+      paint(staticSearch(q), q)
     }
 
     function open() {
       ov.dataset.open = "true"
       paintHint()
-      // Warm the Pagefind index while the user types the first query.
-      void loadPagefind()
-        .then((api) => api?.preload(inp.value))
-        .catch(() => {})
       const target: HTMLInputElement = inp
       setTimeout(() => target.focus(), 0)
     }
@@ -512,9 +531,7 @@ const indexJson = JSON.stringify(entries)
       return ov.dataset.open === "true"
     }
 
-    document.addEventListener("open-command-palette", open)
-
-    document.addEventListener("keydown", (e) => {
+    function onKeydown(e: KeyboardEvent) {
       const target = e.target as HTMLElement | null
       const typing =
         target &&
@@ -563,7 +580,7 @@ const indexJson = JSON.stringify(entries)
         return
       }
       syncActive()
-    })
+    }
 
     let debounce: ReturnType<typeof setTimeout> | undefined
     inp.addEventListener("input", () => {
