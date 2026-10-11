@@ -1,7 +1,12 @@
 ---
-import sansWoff2 from "@/assets/fonts/IBMPlexSans-VariableFont_wdth,wght.woff2?url"
-import sansItalicWoff2 from "@/assets/fonts/IBMPlexSans-Italic-VariableFont_wdth,wght.woff2?url"
 import { SITE, UMAMI } from "@/consts"
+import { DEFAULT_THEME_ID, THEMES, THEME_STORAGE_KEY } from "@/lib/themes"
+
+// Serialized into the pre-paint script below (inline scripts can't import).
+const themeModes: Record<string, string> = Object.fromEntries(
+  THEMES.map((theme) => [theme.id, theme.mode]),
+)
+const validThemeIds = THEMES.map((theme) => theme.id)
 ---
 
 <head>
@@ -50,23 +55,42 @@ import { SITE, UMAMI } from "@/consts"
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Space+Grotesk:wght@300..700&display=swap"
     rel="stylesheet"
   >
 
-  <link rel="preload" href={sansWoff2} as="font" type="font/woff2" crossorigin>
-  <link
-    rel="preload"
-    href={sansItalicWoff2}
-    as="font"
-    type="font/woff2"
-    crossorigin
+  <!-- Restore the saved palette before first paint (avoids a theme flash).
+    Mirrors the palette's designed mode to `data-theme` for legacy CSS. -->
+  <script
+    is:inline
+    define:vars={{
+      themeModes,
+      validThemeIds,
+      storageKey: THEME_STORAGE_KEY,
+      defaultId: DEFAULT_THEME_ID,
+    }}
   >
-
-  <script is:inline>
-    const theme = localStorage.theme
-    if (theme === "light" || theme === "dark")
-      document.documentElement.dataset.theme = theme
+    try {
+      var stored = localStorage.getItem(storageKey)
+      var id = validThemeIds.indexOf(stored) !== -1 ? stored : defaultId
+      var mode = themeModes[id]
+      var root = document.documentElement
+      root.dataset.palette = id
+      if (mode === "light" || mode === "dark") {
+        root.dataset.theme = mode
+      } else {
+        // System palette (Ocean Depths): honor an explicit legacy choice,
+        // otherwise leave `data-theme` unset for the OS default.
+        var legacy = localStorage.getItem("theme")
+        if (legacy === "light" || legacy === "dark") {
+          root.dataset.theme = legacy
+        } else {
+          delete root.dataset.theme
+        }
+      }
+    } catch (e) {
+      // Storage unavailable — defaults from CSS apply.
+    }
   </script>
 
   {UMAMI.websiteId && (
