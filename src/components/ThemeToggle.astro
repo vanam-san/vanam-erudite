@@ -1,61 +1,387 @@
 ---
-import MoonIcon from "@/assets/icons/moon.svg"
-import SunIcon from "@/assets/icons/sun.svg"
+/**
+ * ThemeToggle — palette switcher menu.
+ *
+ * The trigger (palette icon + active-color dot) opens a `listbox` menu with
+ * one option per entry in `src/lib/themes.ts`. Each option shows a color dot,
+ * the theme name, and a tick that marks the selected theme.
+ *
+ * Persistence: the palette id is stored under `THEME_STORAGE_KEY` and applied
+ * as `documentElement.dataset.palette` (drives `themes.css`). The designed
+ * light/dark mode is mirrored to `dataset.theme` so existing `data-theme`
+ * CSS (backdrop, Giscus) and the legacy `localStorage.theme` key keep working.
+ */
+import CheckIcon from "@/assets/icons/check.svg"
+import PaletteIcon from "@/assets/icons/palette.svg"
+import { DEFAULT_THEME_ID, THEMES, THEME_STORAGE_KEY } from "@/lib/themes"
+
+// Serialized into the client script via `define:vars` (inline scripts can't import).
+const themeModes: Record<string, string> = Object.fromEntries(
+  THEMES.map((theme) => [theme.id, theme.mode]),
+)
+const themeBackgrounds: Record<string, string> = Object.fromEntries(
+  THEMES.map((theme) => [theme.id, theme.colors?.background ?? theme.dot]),
+)
+const themeLabels: Record<string, string> = Object.fromEntries(
+  THEMES.map((theme) => [theme.id, theme.label]),
+)
+const validThemeIds = THEMES.map((theme) => theme.id)
 ---
 
-<button id="theme-toggle" data-icon-button aria-label="Toggle theme">
-  <light-icon><SunIcon /></light-icon>
-  <dark-icon><MoonIcon /></dark-icon>
-</button>
+<div class="theme-menu" data-theme-menu>
+  <button
+    id="theme-toggle"
+    data-icon-button
+    type="button"
+    aria-label="Choose theme"
+    aria-haspopup="listbox"
+    aria-expanded="false"
+    aria-controls="theme-list"
+  >
+    <PaletteIcon aria-hidden="true" />
+    <span class="theme-trigger-dot" aria-hidden="true"></span>
+  </button>
+  <ul id="theme-list" role="listbox" aria-label="Choose theme" hidden>
+    {THEMES.map((theme) => (
+        <li
+          role="option"
+          aria-selected={theme.id === DEFAULT_THEME_ID}
+          data-palette-option={theme.id}
+        >
+          <button type="button" data-palette-select={theme.id} tabindex="-1">
+            <span
+              class="theme-dot"
+              style={`--dot: ${theme.dot}`}
+              aria-hidden="true"
+            />
+            <span class="theme-name">{theme.label}</span>
+            <span class="theme-tick" aria-hidden="true">
+              <CheckIcon />
+            </span>
+          </button>
+        </li>
+      ))}
+  </ul>
+</div>
 
-<style is:global>
-  :root[data-theme="light"] {
-    color-scheme: light;
+<style>
+  /* Default dot (Moodpeak accent); per-palette blocks override the var. */
+  :root {
+    --theme-dot: #4ecdc4;
   }
 
-  :root[data-theme="dark"] {
-    color-scheme: dark;
+  .theme-menu {
+    position: relative;
   }
 
-  dark-icon {
-    display: none;
+  #theme-toggle {
+    position: relative;
   }
 
-  :root[data-theme="dark"] {
-    light-icon {
+  /* Active-palette indicator badged on the trigger icon. */
+  .theme-trigger-dot {
+    position: absolute;
+    inset-inline-end: 3px;
+    inset-block-end: 3px;
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    background-color: var(--theme-dot);
+    border: 1px solid var(--background);
+    border-radius: var(--radius-full);
+    pointer-events: none;
+  }
+
+  #theme-list {
+    position: absolute;
+    /* Drop-up on desktop: the trigger sits at the bottom of the sidebar,
+       so opening downward would overflow the viewport. */
+    inset-block-end: calc(100% + 0.5rem);
+    inset-inline-start: 0;
+    z-index: 50;
+    inline-size: max-content;
+    min-inline-size: 12rem;
+    max-inline-size: min(16rem, calc(100vw - 2rem));
+    max-block-size: 50svh;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0.375rem;
+    list-style: none;
+    /* Opaque panel: solid background so page content never shows through. */
+    background-color: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow:
+      var(--glass-highlight),
+      0 12px 32px rgb(0 0 0 / 0.25);
+
+    &[hidden] {
       display: none;
     }
 
-    dark-icon {
-      display: inline;
+    /* Drop-down on mobile: the sidebar is a top bar, so open downward.
+       Right-aligned: the trigger sits at the end of the mobile bar, so
+       left-aligning the menu would overflow the viewport edge. */
+    @media (width < 64rem) {
+      inset-block-start: calc(100% + 0.5rem);
+      inset-block-end: auto;
+      inset-inline-start: auto;
+      inset-inline-end: 0;
     }
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) {
-      light-icon {
-        display: none;
-      }
+  #theme-list [role="option"] > button {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    inline-size: 100%;
+    padding: 0.4375rem 0.5rem;
+    color: var(--foreground);
+    font: inherit;
+    font-size: var(--step--1);
+    text-align: start;
+    background: none;
+    border: 0;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
 
-      dark-icon {
-        display: inline;
-      }
+    &:hover {
+      background-color: color-mix(in oklab, var(--muted) 55%, transparent);
     }
+
+    &:focus-visible {
+      outline: 2px solid var(--ring);
+      outline-offset: -2px;
+    }
+  }
+
+  /* Per-option swatch dot — color comes from the registry (`--dot`). */
+  .theme-dot {
+    flex-shrink: 0;
+    inline-size: 0.75rem;
+    block-size: 0.75rem;
+    background-color: var(--dot);
+    border: 1px solid color-mix(in oklab, var(--foreground) 25%, transparent);
+    border-radius: var(--radius-full);
+  }
+
+  .theme-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Tick marks the selected theme; hidden (but layout-preserving) otherwise. */
+  .theme-tick {
+    display: inline-flex;
+    flex-shrink: 0;
+    color: var(--primary);
+
+    svg {
+      inline-size: 1rem;
+      block-size: 1rem;
+    }
+  }
+
+  #theme-list [role="option"]:not([aria-selected="true"]) .theme-tick {
+    visibility: hidden;
   }
 </style>
 
-<script>
-  const toggleTheme = () => {
-    const root = document.documentElement
-    const dark =
-      root.dataset.theme === "dark" ||
-      (!root.dataset.theme &&
-        matchMedia("(prefers-color-scheme: dark)").matches)
-    const theme = dark ? "light" : "dark"
-    root.dataset.theme = theme
-    localStorage.theme = theme
+<script
+  is:inline
+  define:vars={{
+    themeModes,
+    themeBackgrounds,
+    themeLabels,
+    validThemeIds,
+    storageKey: THEME_STORAGE_KEY,
+    defaultId: DEFAULT_THEME_ID,
+  }}
+>
+  const root = document.documentElement
+  const LEGACY_KEY = "theme"
+  const DARK_META = "#0b1120"
+  const LIGHT_META = "#f0f4f8"
+
+  /** Narrow an unknown value to a known palette id, else the default. */
+  function resolveId(value) {
+    return validThemeIds.indexOf(value) !== -1 ? value : defaultId
   }
 
-  const button = document.getElementById("theme-toggle")
-  if (button) button.onclick = toggleTheme
+  /** Resolve the effective light/dark mode (system follows the OS). */
+  function resolveMode(id) {
+    const mode = themeModes[id]
+    if (mode === "light" || mode === "dark") return mode
+    return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+  }
+
+  /** Keep the `theme-color` metas in sync so the browser chrome matches. */
+  function syncMetaThemeColor(id) {
+    const metas = document.querySelectorAll('meta[name="theme-color"]')
+    if (!metas.length) return
+    const background = themeBackgrounds[id]
+    // System palettes (Ocean Depths) restore the dual light/dark defaults;
+    // fixed palettes use their background for both.
+    const isSystem = themeModes[id] === 'system'
+    metas.forEach((meta) => {
+      const media = meta.getAttribute('media') ?? ''
+      if (isSystem) {
+        meta.setAttribute(
+          'content',
+          media.includes('light') ? LIGHT_META : DARK_META,
+        )
+      } else {
+        meta.setAttribute('content', background)
+      }
+    })
+  }
+
+  /** Apply a palette: attributes, persistence, menu selection state. */
+  function applyPalette(id, { persist = true } = {}) {
+    const valid = resolveId(id)
+    const mode = resolveMode(valid)
+    root.dataset.palette = valid
+    root.dataset.theme = mode
+    if (persist) {
+      try {
+        localStorage.setItem(storageKey, valid)
+        // Legacy key kept for Giscus fallback + pre-palette back-compat.
+        localStorage.setItem(LEGACY_KEY, mode)
+      } catch {
+        // Storage unavailable (private mode) — theme still applies.
+      }
+    }
+    syncMetaThemeColor(valid)
+    document.querySelectorAll("[data-palette-option]").forEach((option) => {
+      const selected = option.getAttribute("data-palette-option") === valid
+      option.setAttribute("aria-selected", String(selected))
+    })
+    const trigger = document.getElementById("theme-toggle")
+    if (trigger) {
+      trigger.setAttribute(
+        "aria-label",
+        `Choose theme (current: ${themeLabels[valid] ?? valid})`,
+      )
+    }
+  }
+
+  function setOpen(trigger, list, open) {
+    trigger.setAttribute("aria-expanded", String(open))
+    list.hidden = !open
+    if (open) {
+      const selected =
+        list.querySelector('[aria-selected="true"] button') ??
+        list.querySelector("button")
+      selected?.focus()
+    }
+  }
+
+  function focusOption(list, direction) {
+    const buttons = Array.from(list.querySelectorAll("button"))
+    if (!buttons.length) return
+    const active = document.activeElement
+    const index = buttons.indexOf(active)
+    const next =
+      direction === "next"
+        ? (index + 1) % buttons.length
+        : (index - 1 + buttons.length) % buttons.length
+    buttons[next].focus()
+  }
+
+  function initThemeMenu() {
+    const menu = document.querySelector("[data-theme-menu]")
+    if (!menu || menu.dataset.bound) return
+    menu.dataset.bound = "true"
+
+    const trigger = menu.querySelector("#theme-toggle")
+    const list = menu.querySelector("#theme-list")
+    if (!trigger || !list) return
+
+    // Sync menu state with the pre-paint restore in MetaHead (or migrate).
+    let stored = null
+    try {
+      stored = localStorage.getItem(storageKey)
+    } catch {
+      stored = null
+    }
+    applyPalette(resolveId(stored), { persist: false })
+
+    trigger.addEventListener("click", () => {
+      setOpen(trigger, list, list.hidden)
+    })
+
+    list.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-palette-select]")
+      if (!button) return
+      applyPalette(button.getAttribute("data-palette-select"))
+      setOpen(trigger, list, false)
+      trigger.focus()
+    })
+
+    menu.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        setOpen(trigger, list, false)
+        trigger.focus()
+      } else if (event.key === "ArrowDown") {
+        event.preventDefault()
+        if (list.hidden) setOpen(trigger, list, true)
+        else focusOption(list, "next")
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault()
+        if (list.hidden) setOpen(trigger, list, true)
+        else focusOption(list, "prev")
+      }
+    })
+
+    // Re-apply after view transitions so the new DOM reflects storage.
+    document.addEventListener("astro:after-swap", () => {
+      let current = null
+      try {
+        current = localStorage.getItem(storageKey)
+      } catch {
+        current = null
+      }
+      applyPalette(resolveId(current), { persist: false })
+    })
+
+    // Follow the OS while a system-mode palette (Ocean Depths) is active.
+    const media = matchMedia("(prefers-color-scheme: dark)")
+    const onSchemeChange = () => {
+      let current = null
+      try {
+        current = localStorage.getItem(storageKey)
+      } catch {
+        current = null
+      }
+      const id = resolveId(current)
+      if (themeModes[id] === "system") applyPalette(id, { persist: false })
+    }
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", onSchemeChange)
+    }
+  }
+
+  // Outside-click closer shared across navigations (no stale closures).
+  if (!root.dataset.themeMenuBound) {
+    root.dataset.themeMenuBound = "true"
+    document.addEventListener("click", (event) => {
+      const menu = document.querySelector("[data-theme-menu]")
+      if (!menu) return
+      const list = menu.querySelector("#theme-list")
+      const trigger = menu.querySelector("#theme-toggle")
+      if (!list || !trigger || list.hidden) return
+      if (
+        !menu.contains(event.target) &&
+        event.target !== trigger &&
+        !trigger.contains(event.target)
+      ) {
+        setOpen(trigger, list, false)
+      }
+    })
+  }
+
+  document.addEventListener("astro:page-load", initThemeMenu)
+  document.addEventListener("astro:after-swap", initThemeMenu)
+  initThemeMenu()
 </script>
