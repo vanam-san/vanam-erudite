@@ -168,7 +168,52 @@ GISCUS_CATEGORY_ID=
 - **Unified tags** — cross-collection (`/tags`) spanning blog, gallery, projects
 - **Giscus + Umami** — optional, zero-config-when-absent integrations
 - **Ocean Depths theme** — cyan/lume accents, glow tokens, `light-dark()` auto light/dark mode
-- **Typography** — Fraunces display, IBM Plex Sans body, IBM Plex Mono meta
+- **Theme menu** — 29 palettes (Moodpeak default, plus Ocean Depths and 28 [HANCORE-linux Omarchy themes](https://github.com/HANCORE-linux/HANCORE-linux/blob/main/THEMES.md)); see [Themes](#themes)
+- **Typography** — Space Grotesk display, Inter body, JetBrains Mono meta
+
+## Themes
+
+Click the palette icon in the sidebar to open the theme menu. Each entry shows a color dot (the palette accent), the theme name, and a tick marking the selected theme. The menu opens upward on desktop, anchors to the viewport edge on mobile, renders as an opaque panel, and supports keyboard navigation (`↑`/`↓` to move, `Esc` to close). The choice persists in `localStorage` (`theme-palette`), applies pre-paint (no flash), and follows the OS while Ocean Depths is active.
+
+| Theme | Mode | Accent | Upstream |
+| ----- | ---- | ------ | -------- |
+| Ocean Depths | system | `#0891b2` | — |
+| Banish | dark | `#ff2fb3` | [omarchy-banish-theme](https://github.com/HANCORE-linux/omarchy-banish-theme) |
+| Batou | dark | `#605d5b` | [omarchy-batou-theme](https://github.com/HANCORE-linux/omarchy-batou-theme) |
+| BlackGold | dark | `#6e6a58` | [omarchy-blackgold-theme](https://github.com/HANCORE-linux/omarchy-blackgold-theme) |
+| BlackMoney | dark | `#d8d4b4` | [omarchy-blackmoney-theme](https://github.com/HANCORE-linux/omarchy-blackmoney-theme) |
+| BlackTurq | dark | `#adf0e9` | [omarchy-blackturq-theme](https://github.com/HANCORE-linux/omarchy-blackturq-theme) |
+| Demon | dark | `#5c624b` | [omarchy-demon-theme](https://github.com/HANCORE-linux/omarchy-demon-theme) |
+| Dos-Moos | dark | `#819890` | [omarchy-dos-moos-theme](https://github.com/HANCORE-linux/omarchy-dos-moos-theme) |
+| Greek Noir | dark | `#f25623` | [omarchy-greek-noir-theme](https://github.com/HANCORE-linux/omarchy-greek-noir-theme) |
+| Harbor | light | `#5e81ac` | [omarchy-harbor-theme](https://github.com/HANCORE-linux/omarchy-harbor-theme) |
+| Harbor Dark | dark | `#e75a50` | [omarchy-harbordark-theme](https://github.com/HANCORE-linux/omarchy-harbordark-theme) |
+| InkyPinky | dark | `#7c7ca8` | [omarchy-inkypinky-theme](https://github.com/HANCORE-linux/omarchy-inkypinky-theme) |
+| Kansō | dark | `#8ba4b0` | [omarchy-kanso-theme](https://github.com/HANCORE-linux/omarchy-kanso-theme) |
+| Labra | dark | `#e33d84` | [omarchy-labra-theme](https://github.com/HANCORE-linux/omarchy-labra-theme) |
+| Last Horizon | dark | `#d7857f` | [omarchy-lasthorizon-theme](https://github.com/HANCORE-linux/omarchy-lasthorizon-theme) |
+| Mecha no Onna | dark | `#d4bd99` | [omarchy-mechanoonna-theme](https://github.com/HANCORE-linux/omarchy-mechanoonna-theme) |
+| Moodpeak (default) | dark | `#4ecdc4` | [omarchy-moodpeak-theme](https://github.com/HANCORE-linux/omarchy-moodpeak-theme) |
+| Oxford | dark | `#bda07f` | [omarchy-oxford-theme](https://github.com/HANCORE-linux/omarchy-oxford-theme) |
+| Oxocarbon | dark | `#33b1ff` | [omarchy-oxocarbon-theme](https://github.com/HANCORE-linux/omarchy-oxocarbon-theme) |
+| Rose of Dune | light | `#76634c` | [omarchy-roseofdune-theme](https://github.com/HANCORE-linux/omarchy-roseofdune-theme) |
+| Ryū | dark | `#525e5a` | [omarchy-ryu-theme](https://github.com/HANCORE-linux/omarchy-ryu-theme) |
+| Saga | dark | `#b2fff3` | [omarchy-saga-theme](https://github.com/HANCORE-linux/omarchy-saga-theme) |
+| Sapphire | dark | `#f7c3c6` | [omarchy-sapphire-theme](https://github.com/HANCORE-linux/omarchy-sapphire-theme) |
+| Shades of Jade | dark | `#d1ffb0` | [omarchy-shadesofjade-theme](https://github.com/HANCORE-linux/omarchy-shadesofjade-theme) |
+| Solitude | dark | `#798186` | [omarchy-solitude-theme](https://github.com/HANCORE-linux/omarchy-solitude-theme) |
+| The Greek | light | `#de6a41` | [omarchy-thegreek-theme](https://github.com/HANCORE-linux/omarchy-thegreek-theme) |
+| Turbonite | dark | `#ed9a1d` | [omarchy-turbonite-theme](https://github.com/HANCORE-linux/omarchy-turbonite-theme) |
+| Velvet Night | dark | `#9099a5` | [omarchy-velvetnight-theme](https://github.com/HANCORE-linux/omarchy-velvetnight-theme) |
+| White Gold | light | `#005c32` | [omarchy-whitegold-theme](https://github.com/HANCORE-linux/omarchy-whitegold-theme) |
+
+Each HANCORE palette maps its upstream `colors.toml` onto the site tokens (`--background`, `--foreground`, `--primary`, `--secondary`, `--muted`, `--destructive`, …); glass/glow helpers derive automatically. The palette's designed mode is mirrored to `data-theme`, so the circuit backdrop and Giscus comments follow it.
+
+### Adding a theme
+
+1. Append an entry to `THEMES` in `src/lib/themes.ts` (id, label, mode, dot, upstream `colors.toml` values).
+2. Add a matching `:root[data-palette="<id>"]` block in `src/styles/themes.css`.
+3. Add a row to the table above. The menu renders from the registry — no component changes needed.
 
 ## Commands
 
@@ -201,7 +246,7 @@ Deploy `dist/` to Vercel, Netlify, Cloudflare Pages, or any static host. Two thi
 | Search shows only titles in dev | Expected — full-text index exists only in `dist/` after build |
 | Weather tile stuck at `--°C` | wttr.in unreachable/blocked; tile degrades gracefully, no action needed |
 | Port already in use | `bun run dev -- --port 4322` |
-| Fonts look wrong | Display font (Fraunces) loads from Google Fonts; needs network on first paint, then caches |
+| Fonts look wrong | Display/body/mono fonts load from Google Fonts; needs network on first paint, then caches |
 
 ---
 
@@ -211,6 +256,18 @@ Deploy `dist/` to Vercel, Netlify, Cloudflare Pages, or any static host. Two thi
 - [merox.dev](https://github.com/meroxdotdev) by Robert Melcher — design inspiration
 - [Frontend Design](https://agenticskills.io/skills/frontend-design) — frontend design patterns
 - [Theme Factory](https://github.com/anthropics/skills/tree/main/skills/theme-factory) — theme system reference
+
+### Theme palettes
+
+All 28 palettes are adapted from the [HANCORE-linux theme archive](https://github.com/HANCORE-linux/HANCORE-linux/blob/main/THEMES.md) — each upstream `colors.toml` mapped onto the site tokens:
+
+[Banish](https://github.com/HANCORE-linux/omarchy-banish-theme) · [Batou](https://github.com/HANCORE-linux/omarchy-batou-theme) · [BlackGold](https://github.com/HANCORE-linux/omarchy-blackgold-theme) · [BlackMoney](https://github.com/HANCORE-linux/omarchy-blackmoney-theme) · [BlackTurq](https://github.com/HANCORE-linux/omarchy-blackturq-theme) · [Demon](https://github.com/HANCORE-linux/omarchy-demon-theme) · [Dos-Moos](https://github.com/HANCORE-linux/omarchy-dos-moos-theme) · [Greek Noir](https://github.com/HANCORE-linux/omarchy-greek-noir-theme) · [Harbor](https://github.com/HANCORE-linux/omarchy-harbor-theme) · [Harbor Dark](https://github.com/HANCORE-linux/omarchy-harbordark-theme) · [InkyPinky](https://github.com/HANCORE-linux/omarchy-inkypinky-theme) · [Kansō](https://github.com/HANCORE-linux/omarchy-kanso-theme) · [Labra](https://github.com/HANCORE-linux/omarchy-labra-theme) · [Last Horizon](https://github.com/HANCORE-linux/omarchy-lasthorizon-theme) · [Mecha no Onna](https://github.com/HANCORE-linux/omarchy-mechanoonna-theme) · [Moodpeak](https://github.com/HANCORE-linux/omarchy-moodpeak-theme) · [Oxford](https://github.com/HANCORE-linux/omarchy-oxford-theme) · [Oxocarbon](https://github.com/HANCORE-linux/omarchy-oxocarbon-theme) · [Rose of Dune](https://github.com/HANCORE-linux/omarchy-roseofdune-theme) · [Ryū](https://github.com/HANCORE-linux/omarchy-ryu-theme) · [Saga](https://github.com/HANCORE-linux/omarchy-saga-theme) · [Sapphire](https://github.com/HANCORE-linux/omarchy-sapphire-theme) · [Shades of Jade](https://github.com/HANCORE-linux/omarchy-shadesofjade-theme) · [Solitude](https://github.com/HANCORE-linux/omarchy-solitude-theme) · [The Greek](https://github.com/HANCORE-linux/omarchy-thegreek-theme) · [Turbonite](https://github.com/HANCORE-linux/omarchy-turbonite-theme) · [Velvet Night](https://github.com/HANCORE-linux/omarchy-velvetnight-theme) · [White Gold](https://github.com/HANCORE-linux/omarchy-whitegold-theme)
+
+### Fonts
+
+- [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk) by Florian Karsten — display
+- [Inter](https://fonts.google.com/specimen/Inter) by Rasmus Andersson — body
+- [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) by JetBrains — code and metadata
 
 ---
 
