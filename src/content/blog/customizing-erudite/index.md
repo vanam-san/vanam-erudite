@@ -161,44 +161,48 @@ const current = data.current_condition[0]
 
 The clock updates every second using `setInterval`.
 
-## Custom color theme — Midnight Galaxy
+## Theme system — Ocean Depths + HANCORE archive
 
-The base erudite template uses a simple light/dark scheme with neutral grays. I replaced it with a custom Midnight Galaxy palette — deep purples, cosmic blues, and lavender accents:
+The base erudite template uses a simple light/dark scheme with neutral grays. I replaced it with a palette switcher that defaults to Moodpeak: a built-in Ocean Depths theme (cyan/lume accents, `light-dark()` auto mode) plus 28 palettes adapted from the [HANCORE-linux Omarchy theme archive](https://github.com/HANCORE-linux/HANCORE-linux/blob/main/THEMES.md) — each mapped from its upstream `colors.toml` onto the site tokens:
 
 ```css
-:root {
-  --background: var(--gray-1);   /* #0e0a14 dark, #f5f3f8 light */
-  --primary:    var(--lavender-9); /* #6b5a90 dark, #a490c2 light */
-  --secondary:  var(--cosmic-9);  /* #5a5eaf dark, #4a4e8f light */
+:root[data-palette="banish"] {
+  --background: #0c0b0d;
+  --foreground: #d8d1cc;
+  --primary: #ff2fb3; /* upstream accent */
+  --secondary: #6c70e0; /* upstream blue */
+  --muted: #19181a; /* upstream lighter_background */
 }
 ```
 
-The palette uses `light-dark()` for automatic light/dark mode support — no media query duplication. Each color is defined as a pair: a light variant and a dark variant resolved by the browser's `color-scheme`.
+The palette icon in the sidebar opens the theme menu. Each entry shows a color dot (the palette accent), the theme name, and a tick marking the selection. The menu drops upward on desktop (the trigger sits at the bottom of the sidebar), is right-anchored on mobile, and supports full keyboard navigation (arrows/Escape). The choice persists to `localStorage`, applies pre-paint to avoid a flash, and each palette's designed light/dark mode is mirrored to `data-theme` so the circuit backdrop and Giscus comments follow it.
+
+To add a theme: append an entry to `THEMES` in `src/lib/themes.ts`, add a matching `:root[data-palette="<id>"]` block in `src/styles/themes.css` — the menu renders from the registry, no component changes needed.
 
 Glow effects are layered on interactive elements:
 
 ```css
---glow-purple: 0 0 20px color-mix(in oklab, var(--lavender-9) 25%, transparent);
---glow-cosmic: 0 0 20px color-mix(in oklab, var(--cosmic-9) 20%, transparent);
+--glow-primary: 0 0 20px color-mix(in oklab, var(--cyan-9) 25%, transparent);
+--glow-secondary: 0 0 20px color-mix(in oklab, var(--lume-9) 20%, transparent);
 ```
 
 Cards, sidebar links, and the footer gradient all reference these tokens, keeping the visual language consistent.
 
-## Typography — Fraunces display font
+## Typography — terminal-inspired pairing
 
-The base template uses a single sans-serif stack everywhere. I split typography into two roles:
+The base template uses a single sans-serif stack everywhere. I split typography into three roles, chosen to match the terminal/desktop-theme aesthetic:
 
-- **Display (headings):** Fraunces — an optical variable serif with character, loaded via Google Fonts
-- **Body:** IBM Plex Sans — already in the base, kept for readability
-- **Mono:** IBM Plex Mono — for code and metadata
+- **Display (headings):** Space Grotesk — a techy geometric sans, loaded via Google Fonts
+- **Body:** Inter — a neutral variable sans for readability, loaded via Google Fonts
+- **Mono:** JetBrains Mono — the developer monospace for code and metadata, loaded via Google Fonts
 
-Fraunces is applied via a `--font-display` custom property and used on the sidebar brand, page titles, and bento hero name. The heading scale uses tighter tracking (`-0.02em` on large sizes) and a heavier weight (700) to create contrast against the body text.
+Space Grotesk is applied via a `--font-display` custom property and used on the sidebar brand, page titles, and bento hero name. The heading scale uses tighter tracking (`-0.02em` on large sizes) and a heavier weight (700) to create contrast against the body text.
 
 ```css
---font-display: "Fraunces", ui-serif, Georgia, serif;
+--font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
 ```
 
-The font is preconnected in `MetaHead.astro` and defined in `fonts.css` alongside the existing IBM Plex families.
+The fonts are preconnected in `MetaHead.astro` and defined in `fonts.css`.
 
 ## Vertical bar hover effect on list cards
 
@@ -287,8 +291,8 @@ Blog cards show `words · min read`, gallery cards show `N photos`, and project 
 | Text reveal animation | Hero card bio |
 | Gallery slideshow | Auto-cycling bento card |
 | Weather widget | Live wttr.in data |
-| Color theme | Midnight Galaxy purple palette |
-| Typography | Fraunces display + IBM Plex body |
+| Color theme | Ocean Depths + 28 HANCORE palettes, switcher menu |
+| Typography | Space Grotesk display + Inter body + JetBrains Mono |
 | Tag system | Unified cross-collection tags |
 | Gallery layout | List with year sorting |
 
