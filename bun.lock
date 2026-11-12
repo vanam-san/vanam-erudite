@@ -14,7 +14,7 @@
         "hast-util-select": "^6.0.4",
         "hast-util-to-html": "^9.0.5",
         "hastscript": "^9.0.1",
-        "satteri-expressive-code": "^0.1.15",
+        "satteri-expressive-code": "^0.1.32",
         "temml": "^0.13.3",
       },
       "devDependencies": {
@@ -640,7 +640,7 @@
 
     "satteri": ["satteri@0.9.5", "", { "dependencies": { "@types/estree-jsx": "^1.0.5", "@types/hast": "^3.0.4", "@types/mdast": "^4.0.4", "@types/unist": "^3.0.3" }, "optionalDependencies": { "@bruits/satteri-darwin-arm64": "0.9.5", "@bruits/satteri-darwin-x64": "0.9.5", "@bruits/satteri-linux-arm64-gnu": "0.9.5", "@bruits/satteri-linux-arm64-musl": "0.9.5", "@bruits/satteri-linux-x64-gnu": "0.9.5", "@bruits/satteri-linux-x64-musl": "0.9.5", "@bruits/satteri-wasm32-wasi": "0.9.5", "@bruits/satteri-win32-arm64-msvc": "0.9.5", "@bruits/satteri-win32-x64-msvc": "0.9.5" } }, "sha512-ZuWVl+vnM64y+/TtX8Kosv2c00W+hLQiiwnEL6H0UKVVrxFqMw4D2CJHHQaouVd89OAhtBBfjWLqhKi3TVUV4w=="],
 
-    "satteri-expressive-code": ["satteri-expressive-code@0.1.18", "", { "dependencies": { "expressive-code": "^0.42.0" }, "peerDependencies": { "satteri": ">=0.4.0" } }, "sha512-peSJXchXEiohtKIlKgdjBatqHRhrCWWHKt0+msY75lhWXljIhZ7tI5fpZRcFlJtlGkCsp22/KwbiVQ0E2DG/fg=="],
+    "satteri-expressive-code": ["satteri-expressive-code@0.1.32", "", { "dependencies": { "expressive-code": "^0.42.0" }, "peerDependencies": { "satteri": ">=0.4.0" } }, "sha512-Ux/MMoWKrRhW9wk0bWS8Go48NAqQcdyo2SCjJ4abxyA1M1BtAyk+fauDCiCWGYytv7187nw53lu9vlQH0CPJSQ=="],
 
     "sax": ["sax@1.6.0", "", {}, "sha512-6R3J5M4AcbtLUdZmRv2SygeVaM7IhrLXu9BmnOGmmACak8fiUtOsYNWUS4uK7upbmHIBbLBeFeI//477BKLBzA=="],
 
