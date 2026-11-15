@@ -22,7 +22,7 @@
     "astro": "^7.4.11",
     "github-slugger": "^2.0.0",
     "hast-util-select": "^6.0.4",
-    "hast-util-to-html": "^9.0.5",
+    "hast-util-to-html": "^9.0.6",
     "hastscript": "^9.0.1",
     "satteri-expressive-code": "^0.1.32",
     "temml": "^0.13.3"
