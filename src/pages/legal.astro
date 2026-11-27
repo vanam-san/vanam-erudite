@@ -18,7 +18,7 @@ import Layout from "@/layouts/Layout.astro"
 
   <section class="legal-section">
     <h2 class="legal-section-title">Privacy Policy</h2>
-    <div class="prose">
+    <prose-content>
       <p><strong>Effective Date:</strong> June 26, 2026</p>
       <p>
         Your privacy is important. This website is designed to respect your
@@ -31,16 +31,17 @@ import Layout from "@/layouts/Layout.astro"
           analytics tool. Any data collected (e.g., page views, referrers,
           browser info) is anonymous and cannot identify individual users.
         </li>
-        <li><strong>Cookies:</strong> This website does not use cookies.</li>
         <li>
-          <strong>Location (Weather Feature):</strong>
-          This website determines your approximate location using your browser's
-          timezone (via <code>Intl.DateTimeFormat</code>) and looks up the
-          corresponding city name. No precise coordinates are collected or
-          stored. Weather data is fetched from the
-          <strong>wttr.in</strong>
-          API using only the city name. You may disable JavaScript to prevent
-          this feature from running; the website will still function without it.
+          <strong>Theme preference:</strong> The theme picker saves your selected
+          palette in your browser's local storage.
+        </li>
+        <li>
+          <strong>Weather:</strong> When the homepage loads with JavaScript
+          enabled, your browser requests current conditions from
+          <a href="https://github.com/chubin/wttr.in#usage">wttr.in</a>.
+          The service uses your IP address to estimate a location. The widget
+          shows the location reported by the service and uses your browser's
+          time zone separately for the local clock.
         </li>
         <li>
           <strong>Contact:</strong>
@@ -52,12 +53,12 @@ import Layout from "@/layouts/Layout.astro"
         By using this website, you agree to the practices described in this
         Privacy Policy.
       </p>
-    </div>
+    </prose-content>
   </section>
 
   <section class="legal-section">
     <h2 class="legal-section-title">Distribution Rights</h2>
-    <div class="prose">
+    <prose-content>
       <p>
         All content on this website, including text, images, and code snippets,
         is authored by the website owner unless otherwise noted.
@@ -72,12 +73,12 @@ import Layout from "@/layouts/Layout.astro"
           <a href="mailto:your@email.com">your@email.com</a>.
         </li>
       </ul>
-    </div>
+    </prose-content>
   </section>
 
   <section class="legal-section">
     <h2 class="legal-section-title">Terms and Conditions</h2>
-    <div class="prose">
+    <prose-content>
       <p>
         By accessing or using this website, you agree to the following terms:
       </p>
@@ -133,37 +134,24 @@ import Layout from "@/layouts/Layout.astro"
           assistance of large language models (LLMs).
         </em>
       </p>
-    </div>
+    </prose-content>
   </section>
 </Layout>
 
 <style>
-  .page-header {
-    margin-block-end: var(--space-m);
-  }
-
-  .page-title {
-    font-size: var(--step-2);
-    font-weight: var(--font-weight-medium);
-    line-height: calc(var(--leading-offset) + 1em);
-  }
-
-  .page-description {
-    font-size: var(--step--1);
-    color: var(--muted-foreground);
-    line-height: 1.6;
-  }
-
   .legal-section {
     display: flex;
     flex-direction: column;
-    gap: var(--space-m);
-    margin-block-start: var(--space-m);
+    gap: var(--space-s);
+    margin-block-start: var(--space-l);
+    padding-block-start: var(--space-s);
+    border-block-start: 1px solid var(--border);
   }
 
   .legal-section-title {
-    font-size: var(--step-1);
-    font-weight: var(--font-weight-medium);
-    line-height: calc(var(--leading-offset) + 1em);
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    letter-spacing: -0.035em;
+    line-height: 1.1;
   }
 </style>

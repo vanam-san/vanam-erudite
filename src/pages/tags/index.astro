@@ -10,7 +10,7 @@ const tags = await getAllTags()
   <MetaPage slot="head" title="Tags" noindex />
   <div class="page-header animate-in">
     <h1 class="page-title">Tags</h1>
-    <p class="page-desc">
+    <p class="page-description">
       Browse all content by tag across blog, gallery, and projects.
     </p>
   </div>
@@ -30,24 +30,6 @@ const tags = await getAllTags()
 </Layout>
 
 <style>
-  .page-header {
-    margin-block-end: var(--space-m);
-  }
-
-  .page-title {
-    font-family: var(--font-display);
-    font-size: var(--step-2);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.15;
-  }
-
-  .page-desc {
-    font-size: var(--step--1);
-    color: var(--muted-foreground);
-    margin-block-start: var(--space-2xs);
-  }
-
   ul {
     display: flex;
     flex-wrap: wrap;

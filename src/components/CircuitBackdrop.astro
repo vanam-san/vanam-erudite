@@ -1,6 +1,12 @@
 ---
-/* Circuit backdrop — static PCB traces with travelling current.
-   Persisted across view transitions so the current keeps its position. */
+/* Persist the circuit and waveforms across view transitions. */
+
+const wavePath = (phase: number) =>
+  Array.from({ length: 121 }, (_, index) => {
+    const x = -240 + index * 16
+    const y = 220 + 85 * Math.sin((x / 640) * 2 * Math.PI + phase)
+    return `${index === 0 ? "M" : "L"} ${x} ${y.toFixed(2)}`
+  }).join(" ")
 ---
 
 <div
@@ -9,6 +15,22 @@
   data-astro-transition-persist="circuit-backdrop"
 >
   <svg
+    class="waveforms"
+    viewBox="0 0 1440 900"
+    preserveAspectRatio="none"
+    focusable="false"
+  >
+    <path
+      class="wave wave-primary"
+      d={wavePath(0)}
+    ></path>
+    <path
+      class="wave wave-secondary"
+      d={wavePath(Math.PI / 2)}
+    ></path>
+  </svg>
+  <svg
+    class="board"
     viewBox="0 0 1440 900"
     preserveAspectRatio="xMidYMid slice"
     aria-hidden="true"
@@ -210,14 +232,52 @@
 
     svg {
       display: block;
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
     }
+  }
 
-    /* Decorative backdrop — skip it entirely on mobile to save
-       battery, paint cost, and visual noise. */
-    @media (width < 48rem) {
+  .waveforms {
+    filter: blur(clamp(8px, 1.2vw, 18px));
+    mask-image: linear-gradient(90deg, transparent, black 16% 84%, transparent);
+  }
+
+  .wave {
+    fill: none;
+    stroke-width: 23;
+    opacity: 0.23;
+    animation: waveform-drift 23s ease-in-out infinite alternate;
+  }
+
+  .wave-primary {
+    stroke: var(--primary);
+  }
+
+  .wave-secondary {
+    stroke: var(--secondary);
+    animation-duration: 31s;
+    animation-delay: -12s;
+    animation-direction: alternate-reverse;
+  }
+
+  @media (width < 48rem) {
+    .circuit .board {
       display: none;
+    }
+
+    .wave {
+      stroke-width: 16;
+    }
+  }
+
+  @keyframes waveform-drift {
+    from {
+      transform: translate(-6%, -2%);
+    }
+    to {
+      transform: translate(6%, 3%);
     }
   }
 
@@ -316,6 +376,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .wave,
     .flow use,
     .nodes circle {
       animation: none;

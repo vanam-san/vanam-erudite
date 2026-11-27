@@ -1,6 +1,6 @@
 ---
 title: "Customizing astro-erudite: What I Added to the Base Template"
-description: "A walkthrough of every feature added to astro-erudite v2, from the bento homepage to Giscus comments."
+description: "A walkthrough of every feature added to astro-erudite v2, from the editorial homepage and animated backdrop to Giscus comments."
 date: 2026-07-30
 authors:
   - vanam
@@ -11,33 +11,11 @@ tags:
 
 astro-erudite v2 is a minimal, opinionated blogging template. Out of the box it gives you a blog, projects, an about page, and a sidebar. This post covers everything I added on top of that foundation.
 
-## Bento grid homepage
+## Editorial homepage
 
-A bento grid layout — a two-column card-based interface that surfaces content at a glance.
+The homepage opens with a portrait, a short introduction, and links to About and Projects. Writing, projects, and photography each feature one entry next to a list of recent items. On narrow screens the lists stack below the featured cards.
 
-The grid is built with `BentoCard.astro`, a generic card wrapper that supports column and row spanning:
-
-```astro
-<BentoCard span={2} href="/about" class="bento-hero">
-  <img src="..." alt="..." class="bento-hero-avatar" />
-  <div class="bento-hero-name">Vanam-san</div>
-  <div class="bento-hero-subtitle">Tinkerer</div>
-  <p class="bento-hero-bio" data-reveal>...</p>
-  <span class="bento-link">View full profile →</span>
-</BentoCard>
-```
-
-The grid contains five card types:
-
-- **Hero card** (full width) — avatar, name, subtitle, and a bio with a sequential character-reveal animation
-- **Latest posts** — the two most recent blog entries with titles, descriptions, and dates
-- **Latest gallery** — a card with an auto-cycling image slideshow that crossfades every 3 seconds
-- **Projects** — the latest project with a link to the full projects page
-- **Time and weather** (full width) — live clock, local weather via wttr.in, and timezone info
-
-All cards share the same hover treatment: border highlight, background darkening, box shadow, and a 2px upward translate. The gallery card additionally scales its active slide to 1.05x on hover.
-
-The entire grid collapses to a single column on viewports narrower than 40rem.
+The shared layout puts navigation, search, and the theme picker in the header. Article pages keep their breadcrumbs and table of contents, and the homepage includes a live clock and weather widget.
 
 ## Umami analytics
 
@@ -93,7 +71,7 @@ A complete gallery feature with:
 - **Listing page** — a responsive grid of `GalleryCard` components at `/gallery`
 - **Detail pages** — individual gallery pages with a photo grid, lightbox, and optional Markdown content
 - **Lightbox** — a full-screen overlay with prev/next navigation, keyboard support, and a photo counter
-- **Homepage integration** — the latest gallery appears in the bento grid with an auto-cycling slideshow
+- **Homepage integration** — the homepage features a gallery cover and links to recent galleries
 
 The gallery card styling mirrors the blog and project cards: border, background, hover effects, and image scaling.
 
@@ -120,50 +98,17 @@ Blog and project cards were flat list items with no visual containment. I added 
 - Hover state: border brightens, background darkens, box shadow appears, card translates up 2px
 - Image containers get `overflow: hidden` and `border-radius: var(--radius-xl)`, with images scaling to 1.05x on hover
 
-## Sequential text reveal animation
+## Animated circuit backdrop
 
-The hero card bio on the homepage uses a character-by-character reveal animation. Each character is wrapped in a `<span>` with `opacity: 0.2`, then sequentially transitioned to `opacity: 1` over 3 seconds using `setTimeout` delays.
-
-```js
-const delayPerChar = totalDuration / spans.length
-spans.forEach((span, i) => {
-  setTimeout(() => {
-    span.classList.add('revealed')
-  }, i * delayPerChar)
-})
-```
-
-The animation re-runs on View Transitions page swaps.
-
-## Gallery slideshow
-
-The bento homepage gallery card includes a slideshow that crossfades between the first four photos of the latest gallery. Each slide is absolutely positioned with `opacity: 0`, and a 3-second interval cycles the `active` class:
-
-```js
-setInterval(() => {
-  slides[currentIndex].classList.remove('active')
-  currentIndex = (currentIndex + 1) % slides.length
-  slides[currentIndex].classList.add('active')
-}, 3000)
-```
-
-The active slide additionally scales to 1.05x on card hover.
+Two softly blurred waves drift through the upper half of the screen on every page. One follows a sine curve and the other follows a cosine curve. Both inherit colors from the active palette. On desktop, pulses also travel along the circuit traces at the edges. The backdrop stays still when reduced motion is enabled.
 
 ## Weather widget
 
-The time/weather card on the homepage fetches live weather data from `wttr.in` — a free, API-key-less weather service. It maps WMO weather codes to emojis and displays temperature and description.
-
-```js
-const res = await fetch("https://wttr.in/?format=j1")
-const data = await res.json()
-const current = data.current_condition[0]
-```
-
-The clock updates every second using `setInterval`.
+The homepage requests current conditions from `wttr.in` and displays the provider's reported location alongside the temperature and conditions. The request times out after eight seconds. If it fails, the widget shows an unavailable message and the local clock keeps updating.
 
 ## Theme system — Ocean Depths + HANCORE archive
 
-The base erudite template uses a simple light/dark scheme with neutral grays. I replaced it with a palette switcher that defaults to Moodpeak: a built-in Ocean Depths theme (cyan/lume accents, `light-dark()` auto mode) plus 28 palettes adapted from the [HANCORE-linux Omarchy theme archive](https://github.com/HANCORE-linux/HANCORE-linux/blob/main/THEMES.md) — each mapped from its upstream `colors.toml` onto the site tokens:
+The base erudite template uses a simple light/dark scheme with neutral grays. I replaced it with a palette switcher that defaults to Moodpeak: a built-in Ocean Depths theme (cyan/lume accents, `light-dark()` auto mode) plus seven palettes adapted from the [HANCORE-linux Omarchy theme archive](https://github.com/HANCORE-linux/HANCORE-linux/blob/main/THEMES.md) — each mapped from its upstream `colors.toml` onto the site tokens:
 
 ```css
 :root[data-palette="banish"] {
@@ -175,7 +120,7 @@ The base erudite template uses a simple light/dark scheme with neutral grays. I 
 }
 ```
 
-The palette icon in the sidebar opens the theme menu. Each entry shows a color dot (the palette accent), the theme name, and a tick marking the selection. The menu drops upward on desktop (the trigger sits at the bottom of the sidebar), is right-anchored on mobile, and supports full keyboard navigation (arrows/Escape). The choice persists to `localStorage`, applies pre-paint to avoid a flash, and each palette's designed light/dark mode is mirrored to `data-theme` so the circuit backdrop and Giscus comments follow it.
+The palette icon in the header opens the theme menu. Each entry shows a color dot (the palette accent), the theme name, and a tick marking the selection. The menu opens below the trigger on desktop and mobile. Use the arrow keys to move through it and Escape to close it. The choice persists to `localStorage`, applies pre-paint to avoid a flash, and each palette's designed light/dark mode is mirrored to `data-theme` so the circuit backdrop and Giscus comments follow it.
 
 To add a theme: append an entry to `THEMES` in `src/lib/themes.ts`, add a matching `:root[data-palette="<id>"]` block in `src/styles/themes.css` — the menu renders from the registry, no component changes needed.
 
@@ -186,7 +131,7 @@ Glow effects are layered on interactive elements:
 --glow-secondary: 0 0 20px color-mix(in oklab, var(--lume-9) 20%, transparent);
 ```
 
-Cards, sidebar links, and the footer gradient all reference these tokens, keeping the visual language consistent.
+Cards, navigation links, and the backdrop all reference these tokens, keeping the visual language consistent.
 
 ## Typography — terminal-inspired pairing
 
@@ -196,7 +141,7 @@ The base template uses a single sans-serif stack everywhere. I split typography 
 - **Body:** Inter — a neutral variable sans for readability, loaded via Google Fonts
 - **Mono:** JetBrains Mono — the developer monospace for code and metadata, loaded via Google Fonts
 
-Space Grotesk is applied via a `--font-display` custom property and used on the sidebar brand, page titles, and bento hero name. The heading scale uses tighter tracking (`-0.02em` on large sizes) and a heavier weight (700) to create contrast against the body text.
+Space Grotesk is applied via a `--font-display` custom property and used on the header brand, page titles, and homepage hero name. The heading scale uses tighter tracking (`-0.02em` on large sizes) and a heavier weight (700) to create contrast against the body text.
 
 ```css
 --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
@@ -231,7 +176,7 @@ li:hover::before {
 }
 ```
 
-The bar scales from center using `scaleY`, giving a smooth reveal effect. The same pattern is applied to bento card post/project lists using the secondary (cosmic blue) accent.
+The bar scales from center using `scaleY`, giving a smooth reveal effect.
 
 ## Unified tag system
 
@@ -280,7 +225,7 @@ Blog cards show `words · min read`, gallery cards show `N photos`, and project 
 
 | Feature | Added |
 | - | - |
-| Homepage | Bento grid with 5 card types |
+| Homepage | Portrait, featured writing, projects, and photography |
 | Analytics | Umami (cookieless) |
 | Comments | Giscus (GitHub Discussions) |
 | Galleries | Full gallery with lightbox |
@@ -288,12 +233,11 @@ Blog cards show `words · min read`, gallery cards show `N photos`, and project 
 | Scroll to top | Floating mobile button |
 | Card hover effects | Blog, projects, vertical bar accent |
 | Reading time + word count | Blog listing cards too |
-| Text reveal animation | Hero card bio |
-| Gallery slideshow | Auto-cycling bento card |
+| Animated backdrop | Blurred sine and cosine waves with desktop circuit traces |
 | Weather widget | Live wttr.in data |
-| Color theme | Ocean Depths + 28 HANCORE palettes, switcher menu |
+| Color theme | Ocean Depths + 7 HANCORE palettes, switcher menu |
 | Typography | Space Grotesk display + Inter body + JetBrains Mono |
 | Tag system | Unified cross-collection tags |
 | Gallery layout | List with year sorting |
 
-Every addition follows the same principle as the base template: minimal JavaScript, native CSS, and no unnecessary dependencies. The Giscus and Umami integrations are the only external services, and both are optional — the site works fully without them configured.
+Every addition follows the same principle as the base template: minimal JavaScript, native CSS, and no unnecessary dependencies. Giscus and Umami are optional. The homepage clock continues to work if the external weather service is unavailable.

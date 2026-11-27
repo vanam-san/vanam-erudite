@@ -57,7 +57,7 @@ const sections = [
 ]
 ---
 
-<Layout wide topNav>
+<Layout wide>
   <MetaPage slot="head" />
   <ScrollToTop floating />
 
@@ -135,17 +135,13 @@ const sections = [
       <header class="bento-tile-header">
         <div>
           <h2 class="bento-tile-title">
-            <span
-              class="bento-weather-emoji"
-              id="weather-emoji"
-              aria-hidden="true"
-              >☀️</span
-            >
+            <span class="bento-weather-icon" id="weather-icon" aria-hidden="true"></span>
             Here &amp; now
           </h2>
         </div>
         <span class="bento-weather-temp" id="weather-temp">--°C</span>
       </header>
+      <p class="metadata" id="weather-status" role="status">Weather updates require JavaScript.</p>
       <div class="bento-weather-rows">
         <div class="bento-weather-row">
           <span class="bento-weather-item"
@@ -202,6 +198,10 @@ const sections = [
     grid-area: auto;
   }
 
+  #weather-status {
+    margin-block: 0 var(--space-2xs);
+  }
+
   .hero {
     display: grid;
     grid-template-columns: minmax(0, 1fr) clamp(10rem, 24vw, 17rem);
@@ -243,9 +243,14 @@ const sections = [
 
   .hero-links a:first-child {
     padding: var(--space-2xs) var(--space-s);
-    color: var(--primary-foreground);
-    background: var(--primary);
+    color: var(--foreground);
+    background: var(--background);
+    border: 1px solid var(--primary);
     text-decoration: none;
+  }
+
+  .hero-links a:first-child:hover {
+    text-decoration: underline;
   }
 
   .hero-links a + a {
@@ -385,6 +390,7 @@ const sections = [
     }
 
     .portrait {
+      grid-row: 1;
       max-width: 10rem;
     }
 
@@ -434,32 +440,45 @@ const sections = [
     if (el) el.textContent = value
   }
 
+  function formatReading(value: unknown, unit: string) {
+    if (typeof value === "number" || (typeof value === "string" && value.trim())) {
+      const reading = Number(value)
+      if (Number.isFinite(reading)) return `${reading}${unit}`
+    }
+
+    return "—"
+  }
+
   async function fetchWeather() {
+    setText("weather-status", "Loading weather…")
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 8000)
     try {
       const res = await fetch("https://wttr.in/?format=j1", {
         signal: controller.signal,
       })
+      if (!res.ok) throw new Error(`Weather request failed (${res.status})`)
+
       const data = await res.json()
-      const current = data.current_condition[0]
+      const current = data?.current_condition?.[0]
       const astronomy = data.weather?.[0]?.astronomy?.[0]
 
-      const temp = current.temp_C
-      const feels = current.FeelsLikeC
-      const desc = current.weatherDesc[0].value as string
-      const code = current.weatherCode as string
-      const wind = `${current.windspeedKmph} km/h`
-      const humidity = `${current.humidity}%`
+      const temp = formatReading(current?.temp_C, "°C")
+      if (temp === "—") throw new Error("Weather response is missing the temperature")
 
-      let emoji = "☀️"
-      if (code === "116") emoji = "⛅"
-      else if (code === "119" || code === "122") emoji = "☁️"
+      const desc = current.weatherDesc?.[0]?.value
+      const city = data.nearest_area?.[0]?.areaName?.[0]?.value
+      const code = String(current.weatherCode)
+
+      let icon = ""
+      if (code === "113") icon = "\\|/ (o) /|\\"
+      else if (code === "116") icon = "(o) (_)~"
+      else if (code === "119" || code === "122") icon = "(_)~(_)"
       else if (
         ["176", "263", "266", "293", "296", "299", "353", "356"].includes(code)
       )
-        emoji = "🌧️"
-      else if (["200", "386", "389", "392", "395"].includes(code)) emoji = "⛈️"
+        icon = "(_) ///"
+      else if (["200", "386", "389", "392", "395"].includes(code)) icon = "(_) /Z/"
       else if (
         [
           "227",
@@ -473,27 +492,20 @@ const sections = [
           "371",
         ].includes(code)
       )
-        emoji = "❄️"
-      else if (["248", "260"].includes(code)) emoji = "🌫️"
+        icon = "(_) *.*"
+      else if (["248", "260"].includes(code)) icon = "~ === ~"
 
-      setText("weather-temp", `${temp}°C`)
-      setText("weather-emoji", emoji)
-      setText("weather-feels", `${feels}°C`)
-      setText("weather-wind", wind)
-      setText("weather-humidity", humidity)
-      if (astronomy) {
-        setText("weather-rise", astronomy.sunrise)
-        setText("weather-set", astronomy.sunset)
-      }
-      const tempEl = document.getElementById("weather-temp")
-      if (tempEl) tempEl.title = desc
+      setText("weather-temp", temp)
+      setText("weather-icon", icon)
+      setText("weather-feels", formatReading(current.FeelsLikeC, "°C"))
+      setText("weather-wind", formatReading(current.windspeedKmph, " km/h"))
+      setText("weather-humidity", formatReading(current.humidity, "%"))
+      setText("weather-rise", astronomy?.sunrise || "—")
+      setText("weather-set", astronomy?.sunset || "—")
+      const summary = [city, desc].filter((value) => typeof value === "string" && value.trim())
+      setText("weather-status", summary.join(" · ") || "Current conditions")
     } catch {
-      // Timeout, abort, network failure, or bad payload — tile keeps
-      // its "--" placeholders.
-      setText("weather-temp", "--°C")
-      setText("weather-feels", "--°C")
-      setText("weather-wind", "--")
-      setText("weather-humidity", "--%")
+      setText("weather-status", "Weather unavailable. Local time is shown below.")
     } finally {
       clearTimeout(timeout)
     }
