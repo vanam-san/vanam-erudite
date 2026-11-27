@@ -1,156 +1,131 @@
 ---
+import { Image } from "astro:assets"
+import { getCollection } from "astro:content"
 import MetaPage from "@/components/MetaPage.astro"
 import ScrollToTop from "@/components/ScrollToTop.astro"
+import { HERO } from "@/consts"
 import Layout from "@/layouts/Layout.astro"
 import { getPosts, getRecentGalleries } from "@/lib/content"
-import { HERO } from "@/consts"
-import { getCollection } from "astro:content"
 
-const posts = await getPosts()
-const [latestPost, ...restPosts] = posts
-const recentPosts = restPosts.slice(0, 5)
-const recentGalleries = (await getRecentGalleries(3)).map((gallery) => ({
-  id: gallery.id,
-  title: gallery.data.title,
-  count: gallery.data.photos.length,
-}))
-
-const projects = (await getCollection("projects", ({ data }) => !data.draft))
-  .sort(
-    (a, b) =>
-      (b.data.startDate?.getTime() ?? 0) - (a.data.startDate?.getTime() ?? 0),
-  )
-  .slice(0, 3)
-
-const firstName = HERO.name.split(" ")[0]
-const nameEmphasis = HERO.name === "Your Name" ? HERO.name : `${firstName}!`
+const [posts, galleries, projects] = await Promise.all([
+  getPosts(),
+  getRecentGalleries(3),
+  getCollection("projects", ({ data }) => !data.draft),
+])
 
 const formatShortDate = (date: Date) =>
-  date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+  date.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })
+
+const sections = [
+  {
+    title: "Writing",
+    href: "/blog",
+    entries: posts.slice(0, 6).map(({ id, data }) => ({
+      title: data.title,
+      description: data.description,
+      href: `/blog/${id}`,
+      image: data.image,
+      meta: formatShortDate(data.date),
+    })),
+  },
+  {
+    title: "Selected projects",
+    href: "/projects",
+    entries: projects
+      .sort((a, b) => (b.data.startDate?.getTime() ?? 0) - (a.data.startDate?.getTime() ?? 0))
+      .slice(0, 3)
+      .map(({ data }) => ({
+        title: data.name,
+        description: data.description,
+        href: data.link,
+        image: data.image,
+        meta: data.tags?.[0],
+        external: true,
+      })),
+  },
+  {
+    title: "Photography",
+    href: "/gallery",
+    entries: galleries.map(({ id, data }) => ({
+      title: data.title,
+      description: data.description,
+      href: `/gallery/${id}`,
+      image: data.cover,
+      meta: `${data.photos.length} photos`,
+    })),
+  },
+]
 ---
 
-<Layout wide>
+<Layout wide topNav>
   <MetaPage slot="head" />
   <ScrollToTop floating />
 
-  <div class="bento">
-    <!-- WHO — photo with name and title -->
-    <section class="bento-tile bento-who" aria-label={HERO.name}>
-      <img
-        src="/static/avatar.svg"
-        alt={HERO.name}
-        class="bento-avatar"
-        width="96"
-        height="96"
-      >
-      <div class="bento-who-copy">
-        <h1 class="bento-name">Hey, I'm <em>{nameEmphasis}</em></h1>
-        <p class="bento-role">{HERO.title}</p>
-      </div>
-    </section>
-
-    <!-- INTRO — text plus link to about -->
-    <section class="bento-tile bento-intro" aria-label="Introduction">
-      <p class="bento-tagline">{HERO.bio}</p>
-      <span class="bento-note" data-tail="up" style="--tail-x: 22%">
-        More on the <a href="/about">about page</a>.
-      </span>
-      <a
-        href="/about"
-        class="bento-tile-link-overlay"
-        aria-label={`About ${firstName}`}
-      ></a>
-    </section>
-
-    <!-- LATEST POST — banner feature -->
-    {latestPost && (
-      <article class="bento-tile bento-latest" aria-label="Latest post">
-        <p class="bento-kicker">Latest post</p>
-        <h2 class="bento-tile-title">{latestPost.data.title}</h2>
-        <div class="bento-latest-body">
-          <span class="bento-note" data-tail="down" style="--tail-x: 70%">
-            Read my latest post!
-          </span>
+  <div class="home">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="metadata">{HERO.title}</p>
+        <h1>{HERO.name}</h1>
+        <p class="hero-bio">{HERO.bio}</p>
+        <div class="hero-links">
+          <a href="/about">About me <span aria-hidden="true">↗</span></a>
+          <a href="/projects">View projects <span aria-hidden="true">↗</span></a>
         </div>
-        <a
-          href={`/blog/${latestPost.id}`}
-          class="bento-tile-link-overlay"
-          aria-label={`Latest post: ${latestPost.data.title}`}
-        ></a>
-      </article>
-    )}
+      </div>
+      <img src="/static/avatar.svg" alt="" width="240" height="240" class="portrait" />
+    </header>
 
-    <!-- WRITING — recent posts -->
-    <section class="bento-tile bento-writing" aria-label="Recent blog posts">
-      <h2 class="bento-tile-title">Blog</h2>
-      <ul class="bento-list">
-        {recentPosts.map((post) => (
-          <li class="bento-list-item">
-            <a href={`/blog/${post.id}`} class="bento-list-link">
-              <span class="bento-list-prefix">&rarr;</span>
-              <span class="bento-list-title">{post.data.title}</span>
-              <span class="bento-list-meta">
-                {formatShortDate(post.data.date)}
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
-      <a
-        href="/blog"
-        class="bento-tile-link-overlay"
-        aria-label="Open blog"
-      ></a>
-    </section>
+    {sections.map(({ title, href, entries: [featured, ...entries] }) => (
+      <section class="editorial-section">
+        <header class="section-heading">
+          <h2>{title}</h2>
+          <a href={href} aria-label={`Browse all ${title.toLowerCase()}`}>Browse all <span aria-hidden="true">↗</span></a>
+        </header>
 
-    <!-- PROJECTS -->
-    <section class="bento-tile bento-projects" aria-label="Recent projects">
-      <h2 class="bento-tile-title">Projects</h2>
-      <ul class="bento-list">
-        {projects.map((project) => (
-          <li class="bento-list-item">
-            <a
-              href={project.data.link ?? `/projects#${project.id}`}
-              target={project.data.link ? "_blank" : undefined}
-              rel={project.data.link ? "noopener noreferrer" : undefined}
-              class="bento-list-link"
-            >
-              <span class="bento-list-prefix">&rarr;</span>
-              <span class="bento-list-title">{project.data.name}</span>
-              <span class="bento-list-meta">
-                {project.data.tags?.[0] ?? ""}
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
-      <a
-        href="/projects"
-        class="bento-tile-link-overlay"
-        aria-label="Open projects"
-      ></a>
-    </section>
+        {featured && (
+          <div class="section-grid">
+            <article class="feature">
+              {featured.image && (
+                <Image
+                  src={featured.image}
+                  alt=""
+                  width={Math.min(featured.image.width, 1200)}
+                  class="feature-image"
+                />
+              )}
+              <div class="feature-copy">
+                {featured.meta && <p class="metadata">{featured.meta}</p>}
+                <h3>
+                  <a
+                    href={featured.href}
+                    target={"external" in featured ? "_blank" : undefined}
+                    rel={"external" in featured ? "noopener noreferrer" : undefined}
+                  >{featured.title}</a>
+                </h3>
+                <p>{featured.description}</p>
+              </div>
+            </article>
 
-    <!-- PHOTOGRAPHY -->
-    <section class="bento-tile bento-photo" aria-label="Recent photography">
-      <h2 class="bento-tile-title">Photography</h2>
-      <ul class="bento-list">
-        {recentGalleries.map((gallery) => (
-          <li class="bento-list-item">
-            <a href={`/gallery/${gallery.id}`} class="bento-list-link">
-              <span class="bento-list-prefix">&rarr;</span>
-              <span class="bento-list-title">{gallery.title}</span>
-              <span class="bento-list-meta">{gallery.count} photos</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-      <a
-        href="/gallery"
-        class="bento-tile-link-overlay"
-        aria-label="Open gallery"
-      ></a>
-    </section>
+            {entries.length > 0 && (
+              <ul class="entry-list">
+                {entries.map((entry) => (
+                  <li>
+                    <a
+                      href={entry.href}
+                      target={"external" in entry ? "_blank" : undefined}
+                      rel={"external" in entry ? "noopener noreferrer" : undefined}
+                    >
+                      <span>{entry.title}</span>
+                      {entry.meta && <span class="metadata">{entry.meta}</span>}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+      </section>
+    ))}
 
     <!-- LOCAL / WEATHER -->
     <section
@@ -216,6 +191,208 @@ const formatShortDate = (date: Date) =>
     </section>
   </div>
 </Layout>
+
+<style>
+  .home {
+    display: grid;
+    gap: var(--space-xl-2xl);
+  }
+
+  .home .bento-weather {
+    grid-area: auto;
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(10rem, 24vw, 17rem);
+    align-items: center;
+    gap: var(--space-l-xl);
+    min-height: 24rem;
+    padding-block: var(--space-l-xl);
+  }
+
+  .hero h1 {
+    margin-block: var(--space-2xs) var(--space-s);
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 8vw, 7.5rem);
+    line-height: 0.94;
+    letter-spacing: -0.065em;
+    overflow-wrap: anywhere;
+  }
+
+  .hero-bio {
+    max-width: 42ch;
+    color: var(--muted-foreground);
+    font-size: var(--step-1);
+  }
+
+  .hero-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-s);
+    margin-block-start: var(--space-m);
+  }
+
+  .hero-links a,
+  .section-heading a {
+    color: var(--foreground);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    text-underline-offset: 0.25em;
+  }
+
+  .hero-links a:first-child {
+    padding: var(--space-2xs) var(--space-s);
+    color: var(--primary-foreground);
+    background: var(--primary);
+    text-decoration: none;
+  }
+
+  .hero-links a + a {
+    align-self: center;
+  }
+
+  .portrait {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    background: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .editorial-section {
+    border-block-start: 1px solid var(--border);
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-s);
+    padding-block: var(--space-s);
+  }
+
+  .section-heading h2,
+  .feature h3 {
+    margin: 0;
+    font-family: var(--font-display);
+    line-height: 1.1;
+    letter-spacing: -0.035em;
+  }
+
+  .section-heading h2 {
+    font-size: var(--step-3);
+  }
+
+  .section-grid {
+    display: grid;
+    gap: var(--space-m);
+  }
+
+  .section-grid:has(.entry-list) {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+
+  .feature {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: color-mix(in oklab, var(--background) 92%, var(--primary));
+  }
+
+  .feature:focus-within {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+
+  .feature-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 7;
+    object-fit: cover;
+  }
+
+  .feature-copy {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2xs);
+    padding: var(--space-s-m);
+  }
+
+  .feature h3 {
+    font-size: var(--step-2);
+  }
+
+  .feature p {
+    margin: 0;
+    color: var(--muted-foreground);
+  }
+
+  .feature a,
+  .entry-list a {
+    color: var(--foreground);
+    text-decoration: none;
+  }
+
+  .feature a::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+  }
+
+  .feature a:hover,
+  .entry-list a:hover,
+  .section-heading a:hover {
+    color: var(--primary);
+  }
+
+  .metadata {
+    color: var(--muted-foreground);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
+
+  .entry-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-block-start: 1px solid var(--border);
+  }
+
+  .entry-list li {
+    border-block-end: 1px solid var(--border);
+  }
+
+  .entry-list a {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: var(--space-2xs) var(--space-s);
+    padding-block: var(--space-xs);
+  }
+
+  .entry-list a span:first-child {
+    overflow-wrap: anywhere;
+  }
+
+  @media (width < 42rem) {
+    .hero {
+      grid-template-columns: 1fr;
+      min-height: auto;
+    }
+
+    .portrait {
+      max-width: 10rem;
+    }
+
+    .section-grid:has(.entry-list) {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
 
 <script>
   function updateTime() {

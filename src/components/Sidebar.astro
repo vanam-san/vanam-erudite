@@ -4,9 +4,12 @@ import ThemeToggle from "@/components/ThemeToggle.astro"
 import { NAVIGATION, SITE } from "@/consts"
 import { normalizePath } from "@/lib/utils"
 
-type Props = { crumbs?: { label: string; href: string }[] }
+type Props = {
+  crumbs?: { label: string; href: string }[]
+  horizontal?: boolean
+}
 
-const { crumbs = [] } = Astro.props
+const { crumbs = [], horizontal = false } = Astro.props
 const pathname = normalizePath(Astro.url.pathname) || "/"
 const section = NAVIGATION.find(
   ({ href }) => pathname === href || pathname.startsWith(`${href}/`),
@@ -14,7 +17,7 @@ const section = NAVIGATION.find(
 const isHome = pathname === "/"
 ---
 
-<aside data-bar>
+<aside data-bar class:list={{ horizontal }}>
   <sidebar-inner>
     <a href="/" class="desktop-brand" aria-label={SITE.title}>
       <Logo />
@@ -130,6 +133,38 @@ const isHome = pathname === "/"
 </aside>
 
 <style>
+  @media (width >= 64rem) {
+    .horizontal {
+      position: static;
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-s);
+      height: auto;
+      padding-block: var(--space-xs);
+    }
+
+    .horizontal sidebar-inner {
+      flex: 1;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .horizontal nav > ul {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: var(--space-2xs) var(--space-s);
+    }
+
+    .horizontal nav a:hover {
+      transform: none;
+    }
+
+    .horizontal sidebar-toggle {
+      margin-inline-start: 0;
+    }
+  }
+
   aside {
     position: sticky;
     top: var(--page-offset-top);
@@ -201,7 +236,7 @@ const isHome = pathname === "/"
     }
   }
 
-  /* ── vanam.dev nav: display type, slide + primary on hover ── */
+  /* ── nav: display type, slide + primary on hover ── */
   nav ul {
     display: flex;
     flex-direction: column;
@@ -330,7 +365,7 @@ const isHome = pathname === "/"
     transform: translateY(-6px) rotate(-45deg);
   }
 
-  /* ── vanam.dev mobile menu: full-width bar dropdown ── */
+  /* ── mobile menu: full-width bar dropdown ── */
   .mobile-menu {
     display: none;
 
@@ -386,7 +421,7 @@ const isHome = pathname === "/"
     }
   }
 
-  /* ── vanam.dev ⌘K trigger (desktop only) ── */
+  /* ── ⌘K trigger (desktop only) ── */
   .cmdk-button {
     display: inline-flex;
     align-items: center;

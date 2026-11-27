@@ -29,11 +29,12 @@ import { SITE } from "@/consts"
 type Props = {
   crumbs?: { label: string; href: string }[]
   wide?: boolean
+  topNav?: boolean
   /** Exclude this page from the Pagefind search index (e.g. 404). */
   noindex?: boolean
 }
 
-const { crumbs, wide = false, noindex = false } = Astro.props
+const { crumbs, wide = false, topNav = false, noindex = false } = Astro.props
 ---
 
 <html lang={SITE.locale} dir={SITE.dir}>
@@ -46,10 +47,10 @@ const { crumbs, wide = false, noindex = false } = Astro.props
     <div class="bg-orbs" aria-hidden="true"></div>
     <CircuitBackdrop />
     <CommandPalette />
-    <page-grid>
+    <page-grid class:list={{ "top-nav": topNav }}>
       <page-header>
         <page-nav>
-          <Sidebar crumbs={crumbs}
+          <Sidebar crumbs={crumbs} horizontal={topNav}
             ><slot name="actions" slot="actions" /></Sidebar
           >
         </page-nav>
@@ -217,6 +218,29 @@ const { crumbs, wide = false, noindex = false } = Astro.props
   @media screen and (width >= 64rem) {
     page-content.wide {
       grid-column: 3 / 13;
+    }
+
+    .top-nav {
+      grid-template-rows: auto 1fr;
+      padding-block-start: 0;
+    }
+
+    .top-nav page-nav {
+      position: static;
+      width: auto;
+      grid-column: 1 / -1;
+      border-block-end: 1px solid var(--border);
+    }
+
+    .top-nav page-content.wide {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+  }
+
+  @media (width < 64rem) {
+    .top-nav page-content.wide {
+      max-inline-size: 64rem;
     }
   }
 </style>

@@ -46,10 +46,10 @@
   --border:             var(--gray-5);
   --ring:               var(--cyan-7);
 
-  /* Structural surface scale (vanam.dev bento notes) */
+  /* Structural surface scale */
   --background-l4: var(--gray-5);
 
-  /* Glassmorphism (vanam.dev mobile bar) — derived from theme tokens */
+  /* Glassmorphism — derived from theme tokens */
   --glass-bg: light-dark(
     color-mix(in oklab, var(--background) 55%, transparent),
     color-mix(in oklab, var(--background) 38%, transparent)

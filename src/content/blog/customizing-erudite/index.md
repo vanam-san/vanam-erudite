@@ -206,7 +206,7 @@ The fonts are preconnected in `MetaHead.astro` and defined in `fonts.css`.
 
 ## Vertical bar hover effect on list cards
 
-Blog, gallery, and project cards all share a list-item layout (date | title | tags | meta). I added a 2px vertical accent bar on the left edge that animates in on hover — inspired by the Blowfish theme used on vanam.dev.
+Blog, gallery, and project cards all share a list-item layout (date | title | tags | meta). I added a 2px vertical accent bar on the left edge that animates in on hover.
 
 Each `<li>` gets `position: relative` and a `::before` pseudo-element:
 

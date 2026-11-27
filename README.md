@@ -56,7 +56,7 @@ export const SOCIALS = [
 ]
 ```
 
-`HERO` drives the homepage who/intro tiles. `NAVIGATION` renders the sidebar on desktop and the dropdown menu on mobile (Home is added automatically). Also set `site:` in `astro.config.ts` to your production domain — it feeds canonical URLs, sitemap, RSS, and social cards.
+`HERO` drives the homepage introduction. `NAVIGATION` renders the desktop navigation and the dropdown menu on mobile (Home is added automatically). Also set `site:` in `astro.config.ts` to your production domain — it feeds canonical URLs, sitemap, RSS, and social cards.
 
 ### 2. Images — `public/static/`
 
@@ -120,7 +120,7 @@ photos:
 Optional gallery description.
 ```
 
-Galleries get listing cards, detail pages with lightbox, and the 3 most recent appear on the homepage photography tile.
+Galleries get listing cards, detail pages with lightbox, and the 3 most recent appear on the homepage photography section.
 
 ### 6. Projects — `src/content/projects/`
 
@@ -137,7 +137,7 @@ endDate: 2024-06-01 # optional
 ---
 ```
 
-The 3 most recent (by `startDate`) appear on the homepage projects tile.
+The 3 most recent (by `startDate`) appear on the homepage projects section.
 
 ### 7. Optional services — `.env`
 
@@ -159,7 +159,7 @@ GISCUS_CATEGORY_ID=
 
 ## What's Included
 
-- **Editorial bento homepage** — who/intro/latest-post/blog/projects/photography tiles plus a live time + weather tile (wttr.in, no key, 8s timeout with graceful fallback)
+- **Editorial homepage** — a portrait and introduction, featured writing, projects, and photography, plus a live time + weather tile (wttr.in, no key, 8s timeout with graceful fallback)
 - **Command palette** (⌘K / Ctrl+K, `/` to focus) — full-text [Pagefind](https://pagefind.app/) search in production, title-index fallback in dev
 - **Keyboard shortcuts** — press `?` anywhere for the shortcut dialog
 - **Circuit backdrop** — animated PCB traces (desktop only), paper grain + theme-aware wash on all screens
