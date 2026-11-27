@@ -68,3 +68,22 @@ prose-content {
     font-weight: 600;
   }
 }
+
+.page-header {
+  margin-block-end: var(--space-m-l);
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.75rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+  overflow-wrap: anywhere;
+}
+
+.page-description {
+  margin-block-start: var(--space-2xs);
+  color: var(--muted-foreground);
+  line-height: 1.6;
+}

@@ -93,10 +93,8 @@ const validThemeIds = THEMES.map((theme) => theme.id)
 
   #theme-list {
     position: absolute;
-    /* Drop-up on desktop: the trigger sits at the bottom of the sidebar,
-       so opening downward would overflow the viewport. */
-    inset-block-end: calc(100% + 0.5rem);
-    inset-inline-start: 0;
+    inset-block-start: calc(100% + 0.5rem);
+    inset-inline-end: 0;
     z-index: 50;
     inline-size: max-content;
     min-inline-size: 12rem;
@@ -116,16 +114,6 @@ const validThemeIds = THEMES.map((theme) => theme.id)
 
     &[hidden] {
       display: none;
-    }
-
-    /* Drop-down on mobile: the sidebar is a top bar, so open downward.
-       Right-aligned: the trigger sits at the end of the mobile bar, so
-       left-aligning the menu would overflow the viewport edge. */
-    @media (width < 64rem) {
-      inset-block-start: calc(100% + 0.5rem);
-      inset-block-end: auto;
-      inset-inline-start: auto;
-      inset-inline-end: 0;
     }
   }
 

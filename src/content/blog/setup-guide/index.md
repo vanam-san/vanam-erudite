@@ -64,7 +64,7 @@ export const SOCIALS = [
 ]
 ```
 
-`HERO` drives the homepage who/intro tiles. `NAVIGATION` renders the sidebar (Home is added automatically). Also set `site:` in `astro.config.ts` to your production domain — canonical URLs, sitemap, and RSS depend on it.
+`HERO` drives the homepage introduction. `NAVIGATION` renders the shared top navigation (Home is added automatically). Also set `site:` in `astro.config.ts` to your production domain — canonical URLs, sitemap, and RSS depend on it.
 
 ## Images
 
@@ -72,7 +72,7 @@ Replace the placeholders in `public/static/`:
 
 - `avatar.svg` — homepage avatar placeholder (replace with your square photo, ~500px)
 - `opengraph-image.png`, `1200x630.png`, `twitter-card.png` — social cards
-- `logo.png` / `logo.svg` — sidebar brand mark (or edit `src/assets/logo.svg`)
+- `logo.png` / `logo.svg` — header brand mark (or edit `src/assets/logo.svg`)
 
 ## Adding Content
 

@@ -446,9 +446,19 @@
 }
 
 /* ── Weather tile ─────────────────────────────────────── */
-.bento-weather-emoji {
-  font-size: var(--step-0);
-  line-height: 1;
+.bento-weather-icon {
+  display: inline-block;
+  margin-inline-end: var(--space-2xs);
+  color: var(--primary);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0;
+  white-space: pre;
+  vertical-align: middle;
+}
+
+.bento-weather-icon:empty {
+  display: none;
 }
 
 .bento-weather-temp {

@@ -4,27 +4,18 @@ import ThemeToggle from "@/components/ThemeToggle.astro"
 import { NAVIGATION, SITE } from "@/consts"
 import { normalizePath } from "@/lib/utils"
 
-type Props = {
-  crumbs?: { label: string; href: string }[]
-  horizontal?: boolean
-}
-
-const { crumbs = [], horizontal = false } = Astro.props
 const pathname = normalizePath(Astro.url.pathname) || "/"
-const section = NAVIGATION.find(
-  ({ href }) => pathname === href || pathname.startsWith(`${href}/`),
-)
 const isHome = pathname === "/"
 ---
 
-<aside data-bar class:list={{ horizontal }}>
+<header data-bar>
   <sidebar-inner>
     <a href="/" class="desktop-brand" aria-label={SITE.title}>
       <Logo />
       <span>{SITE.title}</span>
     </a>
     <a href="/" class="mobile-brand">{SITE.title}</a>
-    <nav>
+    <nav aria-label="Main">
       <ul>
         <li>
           <a href="/" aria-current={isHome ? "page" : undefined}>Home</a>
@@ -37,36 +28,8 @@ const isHome = pathname === "/"
               >
                 {item.label}
               </a>
-              {item === section && crumbs.length > 0 && pathname !== item.href && (
-                <ul>
-                  {crumbs.map((crumb, i) => (
-                    <li data-depth={i ? 1 : undefined}>
-                      <a
-                        href={crumb.href}
-                        aria-current={
-                          i === crumbs.length - 1 ? "page" : undefined
-                        }
-                      >
-                        {crumb.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </li>
           ))}
-        {!section &&
-          !isHome &&
-            crumbs.map((crumb, i) => (
-              <li data-depth={i ? 1 : undefined}>
-                <a
-                  href={crumb.href}
-                  aria-current={i === crumbs.length - 1 ? "page" : undefined}
-                >
-                  {crumb.label}
-                </a>
-              </li>
-            ))}
       </ul>
     </nav>
   </sidebar-inner>
@@ -113,7 +76,7 @@ const isHome = pathname === "/"
     </button>
     <slot name="actions" />
   </sidebar-toggle>
-  <div class="mobile-menu" id="mobile-menu">
+  <nav class="mobile-menu" id="mobile-menu" aria-label="Main">
     <ul>
       <li>
         <a href="/" aria-current={isHome ? "page" : undefined}>Home</a>
@@ -129,71 +92,30 @@ const isHome = pathname === "/"
         </li>
       ))}
     </ul>
-  </div>
-</aside>
+  </nav>
+</header>
 
 <style>
-  @media (width >= 64rem) {
-    .horizontal {
-      position: static;
-      flex-direction: row;
-      align-items: center;
-      gap: var(--space-s);
-      height: auto;
-      padding-block: var(--space-xs);
-    }
-
-    .horizontal sidebar-inner {
-      flex: 1;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .horizontal nav > ul {
-      flex-direction: row;
-      flex-wrap: wrap;
-      gap: var(--space-2xs) var(--space-s);
-    }
-
-    .horizontal nav a:hover {
-      transform: none;
-    }
-
-    .horizontal sidebar-toggle {
-      margin-inline-start: 0;
-    }
-  }
-
-  aside {
-    position: sticky;
-    top: var(--page-offset-top);
+  header {
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: calc(100svh - var(--page-offset-top) - var(--page-offset-bottom));
+    align-items: center;
+    gap: var(--space-s);
+    padding-block: var(--space-xs);
 
     @media (width < 64rem) {
-      flex-flow: row wrap;
-      align-items: center;
+      flex-wrap: wrap;
       gap: var(--space-2xs) var(--space-s);
-      position: static;
-      height: auto;
+      padding-block: var(--space-2xs);
     }
   }
 
   sidebar-inner {
     display: flex;
-    flex-direction: column;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
     gap: var(--space-s);
-
-    @media (width < 64rem) {
-      flex: 1;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      min-width: 0;
-    }
+    min-width: 0;
   }
 
   .desktop-brand {
@@ -236,11 +158,12 @@ const isHome = pathname === "/"
     }
   }
 
-  /* ── nav: display type, slide + primary on hover ── */
-  nav ul {
+  /* ── Desktop navigation ── */
+  sidebar-inner nav ul {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-3xs);
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-2xs) var(--space-s);
 
     a {
       display: block;
@@ -251,12 +174,10 @@ const isHome = pathname === "/"
       color: var(--muted-foreground);
       text-decoration: none;
       transition:
-        color 0.15s ease,
-        transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+        color 0.15s ease;
 
       &:hover {
         color: var(--primary);
-        transform: translateX(var(--space-2xs));
       }
 
       &[aria-current="page"] {
@@ -265,22 +186,6 @@ const isHome = pathname === "/"
         text-decoration-color: var(--primary);
         text-decoration-thickness: 2px;
         text-underline-offset: 4px;
-      }
-    }
-
-    li[data-depth="1"] a {
-      margin-inline-start: var(--space-xs);
-    }
-
-    ul {
-      margin-block-start: var(--space-3xs);
-
-      a {
-        margin-inline-start: var(--space-xs);
-      }
-
-      li[data-depth="1"] a {
-        margin-inline-start: calc(2 * var(--space-xs));
       }
     }
 
@@ -413,7 +318,6 @@ const isHome = pathname === "/"
     display: flex;
     align-items: center;
     gap: var(--space-3xs);
-    margin-inline-start: -0.5rem;
 
     @media (width < 64rem) {
       gap: 2px;

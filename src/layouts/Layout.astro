@@ -29,12 +29,11 @@ import { SITE } from "@/consts"
 type Props = {
   crumbs?: { label: string; href: string }[]
   wide?: boolean
-  topNav?: boolean
   /** Exclude this page from the Pagefind search index (e.g. 404). */
   noindex?: boolean
 }
 
-const { crumbs, wide = false, topNav = false, noindex = false } = Astro.props
+const { crumbs = [], wide = false, noindex = false } = Astro.props
 ---
 
 <html lang={SITE.locale} dir={SITE.dir}>
@@ -47,19 +46,32 @@ const { crumbs, wide = false, topNav = false, noindex = false } = Astro.props
     <div class="bg-orbs" aria-hidden="true"></div>
     <CircuitBackdrop />
     <CommandPalette />
-    <page-grid class:list={{ "top-nav": topNav }}>
+    <page-grid>
       <page-header>
         <page-nav>
-          <Sidebar crumbs={crumbs} horizontal={topNav}
-            ><slot name="actions" slot="actions" /></Sidebar
-          >
+          <Sidebar><slot name="actions" slot="actions" /></Sidebar>
         </page-nav>
         {Astro.slots.has("toc") && (
             <page-toc><slot name="toc" /></page-toc>
           )}
       </page-header>
       <page-content class:list={[wide && "wide"]}>
-        <main id="main" data-pagefind-body><slot /></main>
+        <main id="main" data-pagefind-body>
+          {crumbs.length > 0 && (
+            <nav class="breadcrumbs" aria-label="Breadcrumb" data-pagefind-ignore>
+              <ol>
+                {crumbs.map(({ label, href }, index) => (
+                  <li>
+                    {index === crumbs.length - 1
+                      ? <span aria-current="page">{label}</span>
+                      : <a href={href}>{label}</a>}
+                  </li>
+                ))}
+              </ol>
+            </nav>
+          )}
+          <slot />
+        </main>
         <page-footer><Footer /></page-footer>
       </page-content>
     </page-grid>
@@ -133,17 +145,15 @@ const { crumbs, wide = false, topNav = false, noindex = false } = Astro.props
     isolation: isolate;
     display: grid;
     grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+    grid-template-rows: auto 1fr;
     gap: var(--grid-gutter);
     max-width: var(--grid-max-width);
     min-height: 100svh;
     margin-inline: auto;
     padding-inline: var(--grid-gutter);
-    padding-block-start: var(--page-offset-top);
 
     @media (width < 64rem) {
       grid-template-columns: 1fr;
-      grid-template-rows: auto 1fr;
-      padding-block-start: 0;
     }
   }
 
@@ -164,38 +174,32 @@ const { crumbs, wide = false, topNav = false, noindex = false } = Astro.props
   page-nav {
     display: block;
     min-width: 0;
-    grid-column: 1 / 3;
+    grid-column: 1 / -1;
     grid-row: 1;
 
-    @media screen and (width >= 64rem) {
-      position: fixed;
-      inset-block: var(--page-offset-top) var(--page-offset-bottom);
-      inset-inline-start: var(--grid-edge);
-      width: calc(2 * var(--grid-column-width) + var(--grid-gutter));
+    @media (width >= 64rem) {
+      position: relative;
+      z-index: 10;
+      border-block-end: 1px solid var(--border);
     }
   }
 
   page-toc {
     display: block;
     min-width: 0;
-    grid-column: 10 / 13;
-    grid-row: 1;
-
-    @media screen and (width >= 64rem) {
-      position: fixed;
-      inset-block: var(--page-offset-top) var(--page-offset-bottom);
-      inset-inline-end: var(--grid-edge);
-      width: calc(3 * var(--grid-column-width) + 2 * var(--grid-gutter));
-    }
+    grid-column: 10 / -1;
+    grid-row: 2;
   }
 
   page-content {
     display: flex;
     flex-direction: column;
-    grid-column: 3 / 10;
-    grid-row: 1;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    inline-size: 100%;
+    max-inline-size: var(--measure);
+    margin-inline: auto;
     min-width: 0;
-    margin-block-start: -0.1em;
 
     main {
       flex: 1;
@@ -205,42 +209,42 @@ const { crumbs, wide = false, topNav = false, noindex = false } = Astro.props
       display: block;
       margin-block-start: var(--space-xl);
     }
+  }
 
-    @media (width < 64rem) {
-      grid-column: 1 / -1;
-      grid-row: auto;
-      inline-size: 100%;
-      max-inline-size: var(--measure);
-      margin-inline: auto;
+  page-content.wide {
+    max-inline-size: none;
+  }
+
+  @media (width >= 64rem) {
+    page-grid:has(page-toc) page-content {
+      grid-column: 2 / 10;
     }
   }
 
-  @media screen and (width >= 64rem) {
-    page-content.wide {
-      grid-column: 3 / 13;
-    }
-
-    .top-nav {
-      grid-template-rows: auto 1fr;
-      padding-block-start: 0;
-    }
-
-    .top-nav page-nav {
-      position: static;
-      width: auto;
-      grid-column: 1 / -1;
-      border-block-end: 1px solid var(--border);
-    }
-
-    .top-nav page-content.wide {
-      grid-column: 1 / -1;
-      grid-row: 2;
-    }
+  .breadcrumbs {
+    margin-block-end: var(--space-s);
+    color: var(--muted-foreground);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    overflow-wrap: anywhere;
   }
 
-  @media (width < 64rem) {
-    .top-nav page-content.wide {
-      max-inline-size: 64rem;
-    }
+  .breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3xs) var(--space-2xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .breadcrumbs li + li {
+    border-inline-start: 1px solid var(--border);
+    padding-inline-start: var(--space-2xs);
+  }
+
+  .breadcrumbs a {
+    color: inherit;
+    text-decoration: underline;
   }
 </style>
