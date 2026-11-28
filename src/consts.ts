@@ -5,13 +5,21 @@ import RSS from "@/assets/icons/rss.svg"
 import Twitter from "@/assets/icons/twitter.svg"
 
 export const SITE = {
-  title: "Your Site Title",
-  description: "A personal blog and portfolio built with Astro.",
+  title: "Vanam Erudite",
+  description: "An open-source Astro portfolio, blog, and gallery.",
   locale: "en-US",
   dir: "ltr",
   defaultPageImage: "/static/opengraph-image.png",
   defaultPostImage: "/static/1200x630.png",
 } as const
+
+export const TEMPLATE = {
+  showcase: true,
+  title: "Astro Portfolio Template for Developers",
+  description:
+    "An open-source Astro website template for developer portfolios, personal blogs, project showcases, and photo galleries.",
+  repository: "https://github.com/vanam-san/vanam-erudite",
+}
 
 export const HERO = {
   name: "Your Name",

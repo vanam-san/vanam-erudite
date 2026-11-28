@@ -3,7 +3,7 @@ import { Image } from "astro:assets"
 import { getCollection } from "astro:content"
 import MetaPage from "@/components/MetaPage.astro"
 import ScrollToTop from "@/components/ScrollToTop.astro"
-import { HERO } from "@/consts"
+import { HERO, SITE, TEMPLATE } from "@/consts"
 import Layout from "@/layouts/Layout.astro"
 import { getPosts, getRecentGalleries } from "@/lib/content"
 
@@ -15,6 +15,32 @@ const [posts, galleries, projects] = await Promise.all([
 
 const formatShortDate = (date: Date) =>
   date.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })
+
+const homepageUrl = new URL("/", Astro.site ?? Astro.url).href
+const templateSchema = JSON.stringify({
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${homepageUrl}#website`,
+      url: homepageUrl,
+      name: SITE.title,
+      description: TEMPLATE.description,
+      inLanguage: SITE.locale,
+      about: { "@id": `${homepageUrl}#template` },
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "@id": `${homepageUrl}#template`,
+      name: SITE.title,
+      url: homepageUrl,
+      description: TEMPLATE.description,
+      codeRepository: TEMPLATE.repository,
+      license: "https://opensource.org/license/mit",
+      runtimePlatform: "Astro",
+    },
+  ],
+}).replace(/</g, "\\u003c")
 
 const sections = [
   {
@@ -58,7 +84,13 @@ const sections = [
 ---
 
 <Layout wide>
-  <MetaPage slot="head" />
+  <Fragment slot="head">
+    <MetaPage
+      title={TEMPLATE.showcase ? TEMPLATE.title : undefined}
+      description={TEMPLATE.showcase ? TEMPLATE.description : undefined}
+    />
+    {TEMPLATE.showcase && <script type="application/ld+json" set:html={templateSchema} />}
+  </Fragment>
   <ScrollToTop floating />
 
   <div class="home">
@@ -74,6 +106,20 @@ const sections = [
       </div>
       <img src="/static/avatar.svg" alt="" width="240" height="240" class="portrait" />
     </header>
+
+    {TEMPLATE.showcase && (
+      <section class="editorial-section" aria-labelledby="template-title">
+        <header class="section-heading">
+          <h2 id="template-title">{TEMPLATE.title}</h2>
+          <a href={TEMPLATE.repository}>Get the template <span aria-hidden="true">↗</span></a>
+        </header>
+        <p class="template-description">
+          Build a developer portfolio, personal blog, or project showcase with this MIT-licensed
+          Astro starter. It includes Markdown posts, a photo gallery, and eight color themes.
+          Follow the <a href="/blog/setup-guide/">portfolio template setup guide</a> to make it yours.
+        </p>
+      </section>
+    )}
 
     {sections.map(({ title, href, entries: [featured, ...entries] }) => (
       <section class="editorial-section">
@@ -289,6 +335,16 @@ const sections = [
 
   .section-heading h2 {
     font-size: var(--step-3);
+  }
+
+  .template-description {
+    max-inline-size: var(--measure);
+    color: var(--muted-foreground);
+  }
+
+  .template-description a {
+    color: var(--foreground);
+    text-decoration-color: var(--primary);
   }
 
   .section-grid {

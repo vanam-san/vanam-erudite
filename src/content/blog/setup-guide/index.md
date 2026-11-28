@@ -1,13 +1,13 @@
 ---
-title: 'Setup and Customize This Theme'
-description: 'A step-by-step guide to setting up and personalizing the astro-erudite theme for your own portfolio.'
+title: 'How to Set Up the Astro Developer Portfolio Template'
+description: 'Install and customize the Vanam Erudite Astro website template to build a developer portfolio, personal blog, or project showcase.'
 date: 2026-07-30
 authors: ['vanam']
 tags: ['setup', 'astro', 'guide']
 pinned: true
 ---
 
-This guide walks you through setting up and customizing this Astro theme for your own use.
+Vanam Erudite is an open-source Astro portfolio website template for developers. It comes with a homepage, Markdown blog, project listings, and a photo gallery. This guide walks you through installing the template, replacing the sample content, and preparing your site for deployment.
 
 ## Prerequisites
 
