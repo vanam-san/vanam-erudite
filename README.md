@@ -1,6 +1,6 @@
 # vanam-erudite
 
-A personal portfolio and blog built with [Astro](https://astro.build/), based on the [astro-erudite](https://github.com/jktrn/astro-erudite) theme.
+An open-source developer portfolio website template built with [Astro](https://astro.build/), based on the [astro-erudite](https://github.com/jktrn/astro-erudite) theme.
 
 ## Prerequisites
 
@@ -56,7 +56,7 @@ export const SOCIALS = [
 ]
 ```
 
-`HERO` drives the homepage introduction. `NAVIGATION` renders the shared top navigation and the dropdown menu on mobile (Home is added automatically). Also set `site:` in `astro.config.ts` to your production domain — it feeds canonical URLs, sitemap, RSS, and social cards.
+`HERO` drives the homepage introduction. `NAVIGATION` renders the shared top navigation and the dropdown menu on mobile (Home is added automatically). Also set `site:` in `astro.config.ts` to your production domain — it feeds canonical URLs, sitemap, RSS, and social cards. Set `TEMPLATE.showcase` to `false` if you are using this for your own portfolio. This removes the template promotion and its homepage metadata.
 
 ### 2. Images — `public/static/`
 
